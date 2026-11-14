@@ -1,0 +1,30 @@
+<mat-sidenav-container class="container">
+  <mat-sidenav #sidenav [mode]="isMobile() ? 'over' : 'side'" [opened]="!isMobile()">
+    <div class="brand">🚢 Container Shipping</div>
+    <mat-nav-list >
+
+      @for (item of nav(); track item.link) {
+        <a mat-list-item [routerLink]="item.link" routerLinkActive="active"
+           (click)="isMobile() && sidenav.close()">
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+      
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+   <mat-toolbar>
+  @if (isMobile()) {
+    <button mat-icon-button (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button>
+  }
+  <span class="spacer"></span>
+  <span class="user">{{ auth.user()?.name }}</span>
+  <button mat-icon-button (click)="auth.logout()" aria-label="Logout">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+    <main><router-outlet /></main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

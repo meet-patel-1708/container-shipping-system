@@ -1,0 +1,10 @@
+.page { max-width: 720px; margin: 24px auto; padding: 0 16px; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #ddd; }
+    .row .label { flex: 1; }
+    .ok { color: #2e7d32; }
+    .error { color: #b00020; }
+    .banner { background: #fdecea; padding: 12px; border-radius: 8px; margin-bottom: 16px; }
+    .actions { display: flex; gap: 8px; margin-top: 16px; }
+    mat-form-field { width: 100%; }
+    dl { display: grid; grid-template-columns: 160px 1fr; gap: 6px 12px; }
+    dt { font-weight: 500; }

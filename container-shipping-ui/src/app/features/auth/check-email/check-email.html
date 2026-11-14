@@ -1,0 +1,18 @@
+<div class="wrap">
+  <mat-card class="card">
+    <mat-card-header>
+      <mat-card-title>Check your inbox</mat-card-title>
+      <mat-card-subtitle>{{ email }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>We sent a verification link. It expires in 15 minutes.</p>
+      @if (message(); as m) { <p class="success">{{ m }}</p> }
+      <button mat-stroked-button (click)="resend()" [disabled]="cooldown() > 0">
+        @if (cooldown() > 0) { Resend in {{ cooldown() }}s } @else { Resend email }
+      </button>
+    </mat-card-content>
+    <mat-card-actions>
+      <a mat-button routerLink="/login">Back to sign in</a>
+    </mat-card-actions>
+  </mat-card>
+</div>

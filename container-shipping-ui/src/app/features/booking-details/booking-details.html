@@ -1,0 +1,95 @@
+<div class="detail">
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  } @else if (error(); as err) {
+    <p class="error">{{ err }}</p>
+    <a mat-stroked-button routerLink="/bookings">Back to bookings</a>
+  } @else if (booking(); as b) {
+
+    <div class="head">
+      <div>
+        <h2>Booking #{{ b.bookingId }}</h2>
+        <small>{{ fleet.portName(b.originPortId) }} → {{ fleet.portName(b.destPortId) }}
+          · {{ fleet.shipName(b.shipId) }} · Container #{{ b.containerId }}</small>
+      </div>
+      <span class="badge {{ b.status }}">{{ b.status.replace('_', ' ') }}</span>
+    </div>
+
+    <!-- TIMELINE -->
+    <section>
+      <h3>Progress</h3>
+      @if (b.status === 'CANCELLED') {
+        <p class="error">This booking was cancelled.</p>
+      } @else {
+        <ol class="timeline">
+          @for (s of steps(); track s.status) {
+            <li [class]="s.state">
+              <mat-icon>{{ s.state === 'done' ? 'check_circle' : s.state === 'current' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+              <div>
+                <strong>{{ s.label }}</strong>
+                @if (s.event; as e) {
+                  <small>{{ e.at | date: 'medium' }}@if (e.note) { · {{ e.note }} }</small>
+                }
+              </div>
+            </li>
+          }
+        </ol>
+        @if (canTrack()) {
+          <a mat-flat-button routerLink="/tracking"><mat-icon>location_on</mat-icon> Track live on map</a>
+        }
+      }
+    </section>
+
+    <!-- DETAILS -->
+    <section>
+      <h3>Shipment</h3>
+      <p>Deliver your goods to {{ fleet.portName(b.originPortId) }}. When you arrive, port staff email you a one-time code.</p>
+      <table class="lines">
+        <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
+        <tbody>
+          @for (i of b.items; track i.itemId) {
+            <tr>
+              <td>{{ productName(i.productId) }}</td><td>{{ i.quantity }}</td>
+              <td>{{ i.unitPrice | currency: 'INR' }}</td><td>{{ i.subtotal | currency: 'INR' }}</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot><tr><td colspan="3">Total · {{ b.totalWeightKg }} kg</td><td>{{ b.totalAmount | currency: 'INR' }}</td></tr></tfoot>
+      <p>
+  Departure: <strong>{{ b.scheduleAt | date: 'medium' }}</strong>.
+  Bring your goods to {{ fleet.portName(b.originPortId) }} on or before this day.
+  Port staff will send you an SMS code when you hand them over.
+</p>
+      </table>
+    </section>
+
+    <!-- PAYMENT -->
+    <section class="pay">
+      <h3>Payment</h3>
+      @if (payment(); as p) {
+        <p>
+          <span class="badge {{ p.paymentStatus }}">{{ p.paymentStatus }}</span>
+          &nbsp;{{ p.amount | currency: p.currency }}
+          @if (p.paymentMethod !== 'UNSPECIFIED') { &nbsp;via {{ p.paymentMethod }} }
+        </p>
+        @if (p.transactionReference) {
+          <p><small>Ref {{ p.transactionReference }} · {{ p.paidAt | date: 'medium' }}</small></p>
+        }
+        @if (canPay()) {
+          <a mat-flat-button [routerLink]="['/payments', p.id, 'pay']"><mat-icon>lock</mat-icon> Pay now</a>
+        }
+      } @else {
+        <p><small>The payment record is created a few seconds after booking.</small>
+           <button mat-button (click)="refresh()">Refresh</button></p>
+      }
+    </section>
+
+    <div class="actions">
+      <a mat-button routerLink="/bookings">Back</a>
+      @if (canCancel()) {
+        <button mat-stroked-button (click)="cancel(b)">Cancel booking</button>
+      }
+    </div>
+  }
+  
+</div>

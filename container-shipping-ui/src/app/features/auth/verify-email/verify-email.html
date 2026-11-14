@@ -1,0 +1,77 @@
+<div class="wrap">
+
+  <mat-card class="card">
+
+    @if (loading()) {
+
+      <mat-card-content>
+
+        <mat-spinner diameter="40"></mat-spinner>
+
+        <h2>
+          Verifying your email...
+        </h2>
+
+        <p>
+          Please wait while we verify your email address.
+        </p>
+
+      </mat-card-content>
+
+    }
+
+
+    @if (success()) {
+
+      <mat-card-content>
+
+        <h2>
+          Email Verified ✓
+        </h2>
+
+        <p>
+          {{ message() }}
+        </p>
+
+        <button
+          mat-flat-button
+          type="button"
+          (click)="goToLogin()">
+
+          Go to Login
+
+        </button>
+
+      </mat-card-content>
+
+    }
+
+
+    @if (error()) {
+
+      <mat-card-content>
+
+        <h2>
+          Verification Failed
+        </h2>
+
+        <p>
+          {{ message() }}
+        </p>
+
+        <button
+          mat-flat-button
+          type="button"
+          (click)="goToLogin()">
+
+          Go to Login
+
+        </button>
+
+      </mat-card-content>
+
+    }
+
+  </mat-card>
+
+</div>

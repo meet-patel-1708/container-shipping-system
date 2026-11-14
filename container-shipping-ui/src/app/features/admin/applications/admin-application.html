@@ -1,0 +1,87 @@
+<div class="page">
+  <h2>Driver applications</h2>
+
+  <mat-button-toggle-group [value]="filter()" (change)="setFilter($event.value)">
+    @for (f of filters; track f) {
+      <mat-button-toggle [value]="f">{{ f }}</mat-button-toggle>
+    }
+  </mat-button-toggle-group>
+
+  @if (error(); as msg) { <p class="error">{{ msg }}</p> }
+
+  <div class="grid">
+    <!-- LIST -->
+    <div>
+      @if (loading()) {
+        <mat-spinner diameter="28" />
+      } @else if (result(); as r) {
+        @if (r.content.length === 0) {
+          <p>No applications in this view.</p>
+        } @else {
+          <table>
+            <thead><tr><th>Applicant</th><th>Type</th><th>Status</th><th>Submitted</th></tr></thead>
+            <tbody>
+              @for (a of r.content; track a.applicationId) {
+                <tr class="clickable" [class.selected]="selected()?.applicationId === a.applicationId"
+                    (click)="select(a)">
+                  <td>{{ a.userName }}</td>
+                  <td>{{ a.driverType === 'VEHICLE_DRIVER' ? 'Vehicle' : 'Ship' }}</td>
+                  <td>{{ a.status }}</td>
+                  <td>{{ a.submittedAt | date: 'short' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <mat-paginator [length]="r.totalElements" [pageSize]="r.pageSize"
+                         [pageIndex]="r.pageNumber" [hidePageSize]="true"
+                         (page)="onPage($event)" />
+        }
+      }
+    </div>
+
+    <!-- DETAIL -->
+    <div class="panel">
+      @if (selected(); as a) {
+        <h3>{{ a.userName }}</h3>
+        <dl>
+          <dt>Email</dt><dd>{{ a.userEmail }}</dd>
+          <dt>Phone</dt><dd>{{ a.userPhone }}</dd>
+          <dt>Type</dt><dd>{{ a.driverType }}</dd>
+          <dt>Licence / cert.</dt><dd>{{ a.licenseNumber }}</dd>
+          <dt>Experience</dt><dd>{{ a.experienceYears }} years</dd>
+          @if (a.vehicleNumber) { <dt>Vehicle</dt><dd>{{ a.vehicleNumber }}</dd> }
+          <dt>Status</dt><dd>{{ a.status }}</dd>
+          @if (a.rejectionReason) { <dt>Reason</dt><dd>{{ a.rejectionReason }}</dd> }
+        </dl>
+
+        <h4>Documents</h4>
+        @for (d of a.documents; track d.documentId) {
+          <div>
+            {{ labels[d.documentType] }}
+            <button mat-button type="button" (click)="view(d)">View</button>
+          </div>
+        }
+
+        @if (a.status === 'SUBMITTED') {
+          @if (rejecting()) {
+            <mat-form-field appearance="outline">
+              <mat-label>Reason for rejection</mat-label>
+              <textarea matInput rows="3" maxlength="500" [(ngModel)]="reason"></textarea>
+            </mat-form-field>
+            <div class="actions">
+              <button mat-button type="button" (click)="rejecting.set(false)">Cancel</button>
+              <button mat-flat-button type="button" [disabled]="busy()" (click)="reject(a)">Confirm reject</button>
+            </div>
+          } @else {
+            <div class="actions">
+              <button mat-flat-button type="button" [disabled]="busy()" (click)="approve(a)">Approve</button>
+              <button mat-stroked-button type="button" [disabled]="busy()" (click)="rejecting.set(true)">Reject</button>
+            </div>
+          }
+        }
+      } @else {
+        <p>Select an application to review it.</p>
+      }
+    </div>
+  </div>
+</div>

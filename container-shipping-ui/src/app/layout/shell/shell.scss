@@ -1,0 +1,370 @@
+
+/* =========================================
+   CONTAINER SHIPPING — APP SHELL
+   Premium SaaS Dashboard
+========================================= */
+
+:host {
+  display: block;
+  height: 100%;
+  --navy: #0b1220;
+  --navy-light: #151f32;
+  --indigo: #6366f1;
+  --indigo-dark: #4f46e5;
+  --cyan: #22d3ee;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Main application shell */
+.container {
+  height: 100vh;
+  overflow: hidden;
+  background: #f4f7fc;
+}
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+mat-sidenav {
+  width: 270px;
+  overflow-x: hidden;
+  color: #e2e8f0;
+  background:
+    radial-gradient(
+      ellipse at 0% 0%,
+      rgba(99, 102, 241, 0.19),
+      transparent 42%
+    ),
+    linear-gradient(165deg, #111b2d 0%, #0b1220 75%);
+  border-right: 1px solid rgba(148, 163, 184, 0.12);
+  box-shadow: 8px 0 32px rgba(15, 23, 42, 0.08);
+}
+
+/* Brand */
+.brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 86px;
+  padding: 22px 20px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.13);
+  color: #f8fafc;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.45px;
+  white-space: nowrap;
+}
+
+.brand::after {
+  position: absolute;
+  right: 20px;
+  bottom: 0;
+  left: 20px;
+  height: 2px;
+  border-radius: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--indigo),
+    var(--cyan),
+    transparent
+  );
+  content: "";
+  animation: brandGlow 4s ease-in-out infinite;
+}
+
+/* Navigation spacing */
+mat-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 22px 12px;
+}
+
+/* Navigation links */
+mat-nav-list a[mat-list-item] {
+  position: relative;
+  min-height: 48px;
+  margin: 2px 0;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: #a8b5c9;
+  background: transparent;
+  transition:
+    color 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease,
+    transform 0.22s ease;
+}
+
+/* Hover state */
+mat-nav-list a[mat-list-item]:hover {
+  transform: translateX(3px);
+  border-color: rgba(148, 163, 184, 0.12);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.065);
+}
+
+mat-nav-list a[mat-list-item]:hover mat-icon {
+  color: var(--cyan);
+  transform: scale(1.08);
+}
+
+/* Icons */
+mat-nav-list a mat-icon {
+  color: #8292ab;
+  transition:
+    color 0.22s ease,
+    transform 0.22s ease;
+}
+
+/* Active route */
+mat-nav-list a.active {
+  border-color: rgba(99, 102, 241, 0.22);
+  color: #ffffff;
+  background: linear-gradient(
+    105deg,
+    rgba(99, 102, 241, 0.25),
+    rgba(6, 182, 212, 0.10)
+  );
+  box-shadow: inset 0 0 18px rgba(99, 102, 241, 0.045);
+  animation: navEnter 0.28s ease both;
+}
+
+mat-nav-list a.active::before {
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 5px 5px 0;
+  background: linear-gradient(
+    180deg,
+    var(--indigo),
+    var(--cyan)
+  );
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.35);
+  content: "";
+}
+
+mat-nav-list a.active mat-icon {
+  color: #67e8f9;
+}
+
+/* Navigation labels */
+mat-nav-list a [matListItemTitle] {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+}
+
+/* =========================================
+   MAIN CONTENT & TOOLBAR
+========================================= */
+
+mat-sidenav-content {
+  min-width: 0;
+  height: 100%;
+  background:
+    radial-gradient(
+      ellipse at 100% 0%,
+      rgba(99, 102, 241, 0.045),
+      transparent 32%
+    ),
+    #f4f7fc;
+}
+
+/* Top navigation bar */
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  min-height: 72px;
+  height: 72px;
+  gap: 12px;
+  padding: 0 26px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.025);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: toolbarEnter 0.45s ease both;
+}
+
+/* Push user controls to the right */
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Logged-in user */
+.user {
+  display: inline-flex;
+  align-items: center;
+  max-width: 240px;
+  min-height: 38px;
+  padding: 0 14px;
+  overflow: hidden;
+  border: 1px solid #e0e7ff;
+  border-radius: 999px;
+  color: #3730a3;
+  background: linear-gradient(110deg, #eef2ff, #ecfeff);
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.user:hover {
+  border-color: #a5b4fc;
+  box-shadow: 0 3px 12px rgba(99, 102, 241, 0.1);
+}
+
+/* Toolbar icon buttons */
+mat-toolbar button[mat-icon-button] {
+  flex-shrink: 0;
+  border-radius: 12px;
+  color: #475569;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+mat-toolbar button[mat-icon-button]:hover {
+  transform: translateY(-1px);
+  color: var(--indigo-dark);
+  background: #eef2ff;
+}
+
+mat-toolbar button[mat-icon-button]:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
+
+/* Logout icon hover */
+mat-toolbar button[aria-label="Logout"]:hover {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+/* Routed pages */
+main {
+  min-width: 0;
+  min-height: 0;
+  height: calc(100% - 72px);
+  overflow: auto;
+  animation: contentEnter 0.35s ease both;
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes navEnter {
+  from {
+    opacity: 0.65;
+    transform: translateX(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toolbarEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes contentEnter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes brandGlow {
+  0%, 100% {
+    opacity: 0.7;
+    background-position: 0% 50%;
+  }
+
+  50% {
+    opacity: 1;
+    background-position: 100% 50%;
+  }
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 700px) {
+  mat-sidenav {
+    width: min(290px, 85vw);
+  }
+
+  mat-toolbar {
+    min-height: 62px;
+    height: 62px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .user {
+    max-width: 155px;
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  main {
+    height: calc(100% - 62px);
+  }
+
+  .brand {
+    min-height: 72px;
+    padding: 18px;
+    font-size: 16px;
+  }
+
+  mat-nav-list {
+    padding: 16px 10px;
+  }
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

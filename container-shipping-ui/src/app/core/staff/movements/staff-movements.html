@@ -1,0 +1,63 @@
+<div class="page">
+  <h2>Container movements</h2>
+  <p><small>Moving a container updates every booking inside it, and each step appears on the customers' timelines.</small></p>
+
+  @if (loading()) { <mat-progress-bar mode="indeterminate" /> }
+  @if (error(); as m) { <p class="error">{{ m }}</p> }
+  @if (info(); as m) { <p class="ok">{{ m }}</p> }
+
+  <table>
+    <thead><tr><th>Container</th><th>Route</th><th>Bookings</th><th>Load</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+     @for (g of groups(); track g.containerId) {
+  <div class="box">
+    <div class="head">
+      <div>
+        <strong>Container #{{ g.containerId }}</strong>
+        <small> · {{ fleet.portName(g.originPortId) }} → {{ fleet.portName(g.destPortId) }} · {{ g.kg }} kg · {{ label[g.status] }}</small>
+      </div>
+      <div>
+        @if (g.next; as n) {
+          @if (canAdvance(g)) {
+            <button mat-flat-button type="button" [disabled]="busy() === g.containerId" (click)="advance(g)">{{ action[n] }}</button>
+          } @else {
+            <small>Handled by {{ ownerPort(g) }} staff</small>
+          }
+        }
+        @if (g.status === 'IN_TRANSIT' && canAdvance(g)) {
+          <button mat-stroked-button type="button" (click)="startSim(g)">Restart GPS</button>
+        }
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Booking</th><th>Status</th><th>Port check-in</th></tr></thead>
+      <tbody>
+        @for (b of g.bookings; track b.bookingId) {
+          <tr>
+            <td>#{{ b.bookingId }} <small>({{ b.totalWeightKg }} kg)</small></td>
+            <td>{{ label[b.status] }}</td>
+            <td>
+              @if (b.status === 'CONFIRMED' && canCheckIn(b)) {
+                <button mat-stroked-button type="button" (click)="sendCode(b)">Send code to customer</button>
+                <input maxlength="6" placeholder="6-digit code" (input)="setCode(b.bookingId, $any($event.target).value)" />
+                <button mat-flat-button type="button" (click)="verify(b)">Verify</button>
+              } @else if (b.status === 'CONFIRMED') {
+                <small>Check-in is done at {{ fleet.portName(b.originPortId) }}</small>
+              } @else if (b.status === 'PENDING') {
+                <small>Waiting for payment</small>
+              } @else {
+                <small>Done</small>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+} @empty {
+        @if (!loading()) { <tr><td colspan="6">No active containers.</td></tr> }
+      }
+    </tbody>
+  </table>
+  <button mat-button type="button" (click)="load()"><mat-icon>refresh</mat-icon> Refresh</button>
+</div>

@@ -1,0 +1,96 @@
+<div class="head">
+  <div>
+    <h2>Product catalog</h2>
+    <small>{{ store.totalElements() }} products</small>
+  </div>
+  <button mat-flat-button (click)="openForm()">
+    <mat-icon>add</mat-icon> New product
+  </button>
+</div>
+
+<div class="filters">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search">
+    <mat-label>Search by name</mat-label>
+    <input matInput [formControl]="search" placeholder="e.g. steel" />
+    @if (search.value) {
+      <button mat-icon-button matSuffix type="button" (click)="clearSearch()" aria-label="Clear search">
+        <mat-icon>close</mat-icon>
+      </button>
+    } @else {
+      <mat-icon matSuffix>search</mat-icon>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Sort by</mat-label>
+    <mat-select [value]="store.sort()" (selectionChange)="store.setSort($event.value)">
+      @for (o of sortOptions; track o.value) {
+        <mat-option [value]="o.value">{{ o.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<div class="bar">
+  @if (store.loading()) { <mat-progress-bar mode="indeterminate" /> }
+</div>
+
+@if (store.error(); as err) {
+  <div class="state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ err }}</p>
+    <button mat-stroked-button (click)="store.reload()">Retry</button>
+  </div>
+} @else if (store.isEmpty()) {
+  <div class="state">
+    <mat-icon>inventory_2</mat-icon>
+    <p>{{ search.value ? 'No products match your search.' : 'No products yet.' }}</p>
+    @if (!search.value) {
+      <button mat-flat-button (click)="openForm()">Add the first product</button>
+    }
+  </div>
+} @else {
+  <div class="grid" [class.dim]="store.loading()">
+    @for (p of store.items(); track p.productId) {
+      <mat-card appearance="outlined" class="card">
+        <div class="img">
+          @if (showImage(p)) {
+            <img [src]="p.productImageUrl" [alt]="p.productName" loading="lazy"
+                 (error)="markImageFailed(p.productId)" />
+          } @else {
+            <mat-icon>inventory_2</mat-icon>
+          }
+        </div>
+        <mat-card-content>
+          <div class="code">{{ p.productCode }}</div>
+          <h3>{{ p.productName }}</h3>
+          <p class="desc">{{ p.productDescription }}</p>
+          <div class="meta">
+            <strong>{{ p.productPrice | currency: 'INR' : 'symbol' : '1.2-2' }}</strong>
+            <span>{{ p.productWeight | number: '1.0-2' }} kg</span>
+          </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <button mat-icon-button (click)="openForm(p)" [attr.aria-label]="'Edit ' + p.productName">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button (click)="confirmDelete(p)" [attr.aria-label]="'Delete ' + p.productName">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    } @empty {
+      @for (i of skeletons; track i) { <div class="skeleton"></div> }
+    }
+  </div>
+
+  @if (store.totalElements() > 0) {
+    <mat-paginator
+      [length]="store.totalElements()"
+      [pageSize]="store.size()"
+      [pageIndex]="store.page()"
+      [pageSizeOptions]="[8, 12, 24, 48]"
+      (page)="onPage($event)"
+      showFirstLastButtons />
+  }
+}

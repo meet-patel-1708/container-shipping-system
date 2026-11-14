@@ -1,0 +1,293 @@
+
+:host {
+  --primary: #4f46e5;
+  --primary-dark: #3730a3;
+  --primary-light: #eef2ff;
+  --accent: #0d9488;
+  --text: #172033;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --surface: #ffffff;
+  --background: #f5f7fc;
+
+  display: block;
+  min-height: 100vh;
+  font-family: Inter, Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Page background */
+.wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 10% 10%, rgb(99 102 241 / 12%), transparent 35%),
+    radial-gradient(circle at 90% 90%, rgb(13 148 136 / 10%), transparent 35%),
+    var(--background);
+  animation: page-enter 0.4s ease-out;
+}
+
+/* Login card */
+.card {
+  width: 100%;
+  max-width: 440px;
+  padding: 12px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid rgb(226 232 240 / 85%);
+  border-radius: 22px;
+  box-shadow:
+    0 24px 60px rgb(15 23 42 / 9%),
+    0 4px 12px rgb(15 23 42 / 3%);
+  animation: card-enter 0.5s ease-out both;
+}
+
+/* Header */
+mat-card-header {
+  padding: 22px 18px 18px;
+}
+
+mat-card-title {
+  display: block;
+  margin-bottom: 9px;
+  color: #172554;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+  line-height: 1.3;
+}
+
+mat-card-subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Form area */
+mat-card-content {
+  padding: 8px 18px 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Angular Material form fields */
+mat-form-field {
+  width: 100%;
+}
+
+mat-form-field input {
+  color: var(--text);
+  font-size: 14px;
+}
+
+mat-label {
+  font-size: 14px;
+}
+
+mat-error {
+  font-size: 12px;
+}
+
+/* Password visibility button */
+button[mat-icon-button] {
+  color: var(--muted);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+button[mat-icon-button]:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+/* Sign in button */
+form > button[mat-flat-button] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 0 20px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #6366f1);
+  border-radius: 11px;
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: 0.2px;
+  box-shadow: 0 7px 16px rgb(79 70 229 / 20%);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+form > button[mat-flat-button]:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgb(79 70 229 / 28%);
+}
+
+form > button[mat-flat-button]:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+mat-spinner {
+  --mdc-circular-progress-active-indicator-color: #ffffff;
+}
+
+/* Error messages */
+.error {
+  margin: 12px 18px;
+  padding: 13px 15px;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #dc2626;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  animation: message-enter 0.3s ease-out;
+}
+
+/* Resend verification button */
+.error button[mat-button] {
+  display: inline-flex;
+  margin: 5px 0 0;
+  padding: 0 8px;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: normal;
+}
+
+.error button[mat-button]:hover {
+  background: #fee2e2;
+}
+
+/* Success message */
+.success {
+  margin: 12px 18px;
+  padding: 13px 15px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  animation: message-enter 0.3s ease-out;
+}
+
+/* Footer */
+mat-card-actions {
+  display: flex;
+  justify-content: center;
+  padding: 14px 18px 18px;
+  border-top: 1px solid #f1f5f9;
+}
+
+mat-card-actions a[mat-button] {
+  min-height: 40px;
+  color: var(--primary);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 750;
+  transition: background 0.2s ease;
+}
+
+mat-card-actions a[mat-button]:hover {
+  background: var(--primary-light);
+}
+
+/* Keyboard accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #a5b4fc;
+  outline-offset: 3px;
+}
+
+/* Animations */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes message-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .wrap {
+    padding: 16px 12px;
+  }
+
+  .card {
+    padding: 6px;
+    border-radius: 18px;
+  }
+
+  mat-card-header {
+    padding: 17px 12px 14px;
+  }
+
+  mat-card-title {
+    font-size: 24px;
+  }
+
+  mat-card-content {
+    padding: 8px 12px 16px;
+  }
+
+  .error,
+  .success {
+    margin-right: 12px;
+    margin-left: 12px;
+  }
+
+  mat-card-actions {
+    padding: 12px;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

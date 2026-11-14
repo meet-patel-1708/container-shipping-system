@@ -1,0 +1,485 @@
+
+/* ================================
+   PREMIUM PROFILE PAGE
+   Indigo + Cyan + Slate
+================================ */
+
+:host {
+  display: block;
+  min-height: 100%;
+  color: #0f172a;
+
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --accent: #06b6d4;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --surface: #ffffff;
+  --background: #f4f7fc;
+  --border: #e2e8f0;
+  --muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100%;
+  padding: 32px;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at 0% 0%,
+      rgba(99, 102, 241, 0.11),
+      transparent 38%
+    ),
+    radial-gradient(
+      ellipse at 100% 30%,
+      rgba(6, 182, 212, 0.09),
+      transparent 32%
+    ),
+    var(--background);
+  animation: pageReveal 0.65s ease both;
+}
+
+/* Page title */
+.page h2 {
+  position: relative;
+  margin: 0 0 28px;
+  padding-left: 16px;
+  color: #0b1220;
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 800;
+  letter-spacing: -1.1px;
+  animation: slideUp 0.55s ease both;
+}
+
+.page h2::before {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 0;
+  width: 5px;
+  border-radius: 10px;
+  background: linear-gradient(
+    180deg,
+    var(--primary),
+    var(--accent)
+  );
+  content: "";
+}
+
+/* Profile cards */
+.block.mat-mdc-card {
+  position: relative;
+  margin-bottom: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    0 4px 8px rgba(15, 23, 42, 0.025),
+    0 12px 32px rgba(15, 23, 42, 0.045);
+  animation: cardReveal 0.65s ease both;
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* Stagger the card entrance */
+.block.mat-mdc-card:nth-of-type(2) {
+  animation-delay: 80ms;
+}
+
+.block.mat-mdc-card:nth-of-type(3) {
+  animation-delay: 160ms;
+}
+
+.block.mat-mdc-card:nth-of-type(4) {
+  animation-delay: 240ms;
+}
+
+.block.mat-mdc-card::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    var(--accent),
+    var(--primary)
+  );
+  background-size: 200% 100%;
+  content: "";
+  animation: gradientFlow 5s linear infinite;
+}
+
+.block.mat-mdc-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow:
+    0 14px 35px rgba(79, 70, 229, 0.08),
+    0 5px 12px rgba(15, 23, 42, 0.04);
+}
+
+/* Card headings */
+.block .mat-mdc-card-header {
+  padding: 23px 26px 14px;
+}
+
+.block .mat-mdc-card-title {
+  color: #172554;
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.35px;
+}
+
+.block .mat-mdc-card-subtitle {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.block .mat-mdc-card-content {
+  padding: 8px 26px 26px;
+}
+
+/* Account information */
+dl {
+  display: grid;
+  grid-template-columns: minmax(130px, 190px) minmax(0, 1fr);
+  gap: 0;
+  margin: 0;
+}
+
+dt,
+dd {
+  min-width: 0;
+  margin: 0;
+  padding: 14px 12px;
+  border-bottom: 1px solid #edf1f7;
+  overflow-wrap: anywhere;
+}
+
+dt {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+dd {
+  color: #172033;
+  font-size: 14px;
+  font-weight: 550;
+}
+
+dl dt:last-of-type,
+dl dd:last-of-type {
+  border-bottom: 0;
+}
+
+/* Status labels */
+.ok,
+.error {
+  display: inline-block;
+  width: fit-content;
+  margin: 3px 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+}
+
+.ok {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.error {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+/* Booking requirement banner */
+.banner {
+  position: relative;
+  margin: 0 0 22px;
+  padding: 16px 20px;
+  border: 1px solid #fed7aa;
+  border-radius: 14px;
+  color: #9a3412;
+  background: linear-gradient(
+    110deg,
+    #fff7ed,
+    #ffedd5
+  );
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.05);
+  animation: slideUp 0.5s ease both;
+}
+
+/* Address rows and document rows */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e8edf5;
+  border-radius: 13px;
+  background: #fbfcff;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.row:hover {
+  transform: translateX(3px);
+  border-color: #c7d2fe;
+  background: #f5f7ff;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+/* Forms */
+.form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 18px;
+  margin-top: 22px;
+  padding: 22px;
+  border: 1px solid #e0e7ff;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    #fafaff,
+    #f0f9ff
+  );
+  animation: slideUp 0.35s ease both;
+}
+
+.form mat-form-field {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+/* Material buttons */
+.page button[mat-flat-button],
+.page a[mat-flat-button] {
+  min-height: 42px;
+  border-radius: 11px;
+  font-weight: 650;
+  letter-spacing: 0.1px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.page button[mat-flat-button]:not(:disabled),
+.page a[mat-flat-button] {
+  background: linear-gradient(
+    115deg,
+    var(--primary),
+    var(--primary-dark)
+  );
+  color: white;
+  box-shadow: 0 5px 13px rgba(99, 102, 241, 0.2);
+}
+
+.page button[mat-flat-button]:not(:disabled):hover,
+.page a[mat-flat-button]:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.28);
+}
+
+.page button[mat-stroked-button] {
+  min-height: 40px;
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+  color: #4f46e5;
+  background: #ffffff;
+  transition: all 0.22s ease;
+}
+
+.page button[mat-stroked-button]:hover {
+  border-color: var(--primary);
+  background: #eef2ff;
+}
+
+.page button[mat-button] {
+  border-radius: 9px;
+  color: #4f46e5;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.page button[mat-button]:hover {
+  background: #eef2ff;
+}
+
+.page button:disabled {
+  opacity: 0.55;
+}
+
+/* Input focus accents */
+.form .mat-mdc-form-field {
+  --mdc-outlined-text-field-focus-outline-color: var(--primary);
+  --mdc-outlined-text-field-focus-label-text-color: var(--primary);
+  --mat-form-field-focus-select-arrow-color: var(--primary);
+}
+
+/* Informational text */
+.page small {
+  display: block;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.page p {
+  line-height: 1.7;
+}
+
+/* Loading indicator */
+.page mat-spinner {
+  margin: 50px auto;
+  animation: fadeIn 0.4s ease both;
+}
+
+/* Animations */
+@keyframes pageReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive layout */
+@media (max-width: 700px) {
+  .page {
+    padding: 20px 14px;
+  }
+
+  .block.mat-mdc-card {
+    border-radius: 15px;
+    margin-bottom: 18px;
+  }
+
+  .block .mat-mdc-card-header {
+    padding: 19px 18px 12px;
+  }
+
+  .block .mat-mdc-card-content {
+    padding: 8px 18px 20px;
+  }
+
+  dl {
+    grid-template-columns: minmax(100px, 36%) minmax(0, 1fr);
+  }
+
+  dt,
+  dd {
+    padding: 12px 7px;
+    font-size: 12px;
+  }
+
+  .form {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 4px;
+  }
+
+  .actions {
+    grid-column: 1;
+  }
+
+  .row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 12px;
+  }
+
+  .grow {
+    flex-basis: 100%;
+  }
+}
+
+/* Accessibility: respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

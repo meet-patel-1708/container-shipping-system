@@ -1,0 +1,80 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit product' : 'New product' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="content">
+    <mat-form-field appearance="outline">
+      <mat-label>Product code</mat-label>
+      <input matInput formControlName="productCode" maxlength="7" (input)="upperCode()" />
+      <mat-hint>{{ status() === 'PENDING' ? 'Checking availability…' : 'Format: PC12345' }}</mat-hint>
+      @if (c.productCode.hasError('required')) {
+        <mat-error>Code is required</mat-error>
+      } @else if (c.productCode.hasError('pattern')) {
+        <mat-error>Use PC followed by 5 digits, e.g. PC12345</mat-error>
+      } @else if (c.productCode.hasError('codeTaken')) {
+        <mat-error>This code is already in use</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="productName" maxlength="100" />
+      <mat-error>Name is required (max 100 characters)</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <textarea matInput rows="3" formControlName="productDescription" maxlength="500"></textarea>
+      <mat-hint align="end">{{ c.productDescription.value.length }} / 500</mat-hint>
+      <mat-error>Description is required</mat-error>
+    </mat-form-field>
+
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Price (₹)</mat-label>
+        <input matInput type="number" step="0.01" min="0" formControlName="productPrice" />
+        @if (c.productPrice.hasError('required')) {
+          <mat-error>Price is required</mat-error>
+        } @else if (c.productPrice.hasError('pattern')) {
+          <mat-error>Up to 2 decimal places</mat-error>
+        } @else {
+          <mat-error>Enter a valid price</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Weight (kg)</mat-label>
+        <input matInput type="number" step="0.01" min="0" formControlName="productWeight" />
+        @if (c.productWeight.hasError('required')) {
+          <mat-error>Weight is required</mat-error>
+        } @else if (c.productWeight.hasError('pattern')) {
+          <mat-error>Up to 2 decimal places</mat-error>
+        } @else {
+          <mat-error>Enter a valid weight</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Image URL (optional)</mat-label>
+      <input matInput formControlName="productImageUrl" placeholder="https://..." (input)="imageOk.set(true)" />
+      <mat-error>Must start with http:// or https://</mat-error>
+    </mat-form-field>
+
+    @if (imageUrl() && c.productImageUrl.valid && imageOk()) {
+      <img class="preview" [src]="imageUrl()" alt="Preview" (error)="imageOk.set(false)" />
+    }
+
+    @if (serverErrors().length) {
+      <ul class="error">
+        @for (m of serverErrors(); track m) { <li>{{ m }}</li> }
+      </ul>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Cancel</button>
+    <button mat-flat-button type="submit" [disabled]="saving() || status() === 'PENDING'">
+      @if (saving()) { <mat-spinner diameter="20" /> } @else { {{ isEdit ? 'Save changes' : 'Create product' }} }
+    </button>
+  </mat-dialog-actions>
+</form>

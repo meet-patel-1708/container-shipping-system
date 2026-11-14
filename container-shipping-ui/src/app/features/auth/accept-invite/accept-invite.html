@@ -1,0 +1,35 @@
+<div class="wrap">
+  <mat-card class="card">
+    <mat-card-header>
+      <mat-card-title>Set your password</mat-card-title>
+      <mat-card-subtitle>Container Shipping System</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      @if (!hasToken) {
+        <p class="error">This invitation link is incomplete. Open the link from your email again.</p>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <mat-form-field appearance="outline">
+            <mat-label>New password</mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="new-password" />
+            <mat-hint>8+ chars with upper, lower, number and one of &#64;$!%*?&amp;#</mat-hint>
+            <mat-error>Password does not meet the rules</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Confirm password</mat-label>
+            <input matInput type="password" formControlName="confirmPassword" autocomplete="new-password" />
+            @if (form.hasError('mismatch')) { <mat-error>Passwords do not match</mat-error> }
+          </mat-form-field>
+
+          @if (error(); as m) { <p class="error">{{ m }}</p> }
+
+          <button mat-flat-button type="submit" [disabled]="loading()">
+            @if (loading()) { <mat-spinner diameter="20" /> } @else { Set password }
+          </button>
+        </form>
+      }
+    </mat-card-content>
+    <mat-card-actions><a mat-button routerLink="/login">Back to sign in</a></mat-card-actions>
+  </mat-card>
+</div>

@@ -1,0 +1,154 @@
+<div class="page">
+  @if (loading()) {
+    <mat-spinner diameter="36" />
+  } @else if (data(); as d) {
+
+    <h2>My profile</h2>
+
+    @if (error(); as m) { <p class="error">{{ m }}</p> }
+    @if (info(); as m) { <p class="ok">{{ m }}</p> }
+
+    <!-- ACCOUNT (all roles) -->
+    <mat-card class="block">
+      <mat-card-header><mat-card-title>Account</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <dl>
+          <dt>Name</dt><dd>{{ d.user.name }}</dd>
+          <dt>Email</dt>
+          <dd>{{ d.user.email }}
+            <span [class]="d.user.emailVerified ? 'ok' : 'error'">
+              ({{ d.user.emailVerified ? 'verified' : 'not verified' }})</span></dd>
+          <dt>Phone</dt><dd>{{ d.user.phone }}</dd>
+          <dt>Role</dt><dd>{{ d.user.role }}</dd>
+          <dt>Account status</dt><dd>{{ d.user.status }}</dd>
+          <dt>Member since</dt><dd>{{ d.user.createdAt | date: 'mediumDate' }}</dd>
+        </dl>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- DRIVER STATUS -->
+    @if (d.user.role === 'USER' || d.user.role !== 'EMPLOYEE') {
+      <mat-card class="block">
+        <mat-card-header><mat-card-title>Driver</mat-card-title></mat-card-header>
+        <mat-card-content>
+          @if (d.driver; as dr) {
+            <dl>
+              <dt>Application</dt><dd>{{ dr.status }}</dd>
+              @if (dr.rejectionReason) { <dt>Reason</dt><dd class="error">{{ dr.rejectionReason }}</dd> }
+            </dl>
+            @if (d.user.role === 'USER') {
+              <a mat-stroked-button routerLink="/driver/apply">Open application</a>
+            }
+          } @else if (d.user.role === 'USER') {
+            <p>You have not applied to become a driver.</p>
+            <a mat-flat-button routerLink="/driver/apply">Become a driver</a>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @if (isCustomerLike()) {
+
+      @if (missing().length > 0) {
+        <p class="banner">You need {{ missing().join(' and ') }} before you can make a booking.</p>
+      }
+
+      <!-- ADDRESSES -->
+      <mat-card class="block">
+        <mat-card-header><mat-card-title>Addresses</mat-card-title></mat-card-header>
+        <mat-card-content>
+          @for (a of d.addresses; track a.addressId) {
+            <div class="row">
+              <span class="grow">
+                {{ a.street }}, {{ a.city }}, {{ a.state }} {{ a.pincode }}, {{ a.country }}
+              </span>
+              <button mat-button type="button" (click)="editAddress(a)">Edit</button>
+              <button mat-button type="button" [disabled]="busy()" (click)="removeAddress(a)">Delete</button>
+            </div>
+          } @empty {
+            <p>No address saved yet.</p>
+          }
+
+          @if (showAddress()) {
+            <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="form">
+              <mat-form-field appearance="outline">
+                <mat-label>Street</mat-label>
+                <input matInput formControlName="street" />
+                <mat-error>Street is required (2 to 100 characters)</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>City</mat-label>
+                <input matInput formControlName="city" />
+                <mat-error>Letters only</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>State</mat-label>
+                <input matInput formControlName="state" />
+                <mat-error>Letters only</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Country</mat-label>
+                <input matInput formControlName="country" />
+                <mat-error>Letters only</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Pincode</mat-label>
+                <input matInput formControlName="pincode" inputmode="numeric" maxlength="6" />
+                <mat-error>6-digit Indian pincode</mat-error>
+              </mat-form-field>
+              <div class="actions">
+                <button mat-button type="button" (click)="showAddress.set(false)">Cancel</button>
+                <button mat-flat-button type="submit" [disabled]="busy()">Save address</button>
+              </div>
+            </form>
+          } @else if (d.addresses.length < 5) {
+            <button mat-stroked-button type="button" (click)="newAddress()">Add address</button>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- KYC -->
+      <mat-card class="block">
+        <mat-card-header>
+          <mat-card-title>KYC</mat-card-title>
+          @if (d.kyc; as k) { <mat-card-subtitle>Status: {{ k.status }}</mat-card-subtitle> }
+        </mat-card-header>
+        <mat-card-content>
+          @for (doc of d.kyc?.documents ?? []; track doc.documentId) {
+            <div class="row">
+              <span class="grow">{{ doc.documentType }}: {{ doc.documentNumber }}</span>
+              @if (d.kyc?.status !== 'VERIFIED') {
+                <button mat-button type="button" [disabled]="busy()" (click)="removeKyc(doc.documentId)">Delete</button>
+              }
+            </div>
+          } @empty {
+            <p>No KYC document uploaded yet.</p>
+          }
+
+          @if (d.kyc?.status === 'REJECTED') {
+            <p class="error">Your KYC was rejected. Add a corrected document to submit it again.</p>
+          }
+
+          <form [formGroup]="kycForm" (ngSubmit)="saveKyc()" class="form">
+            <mat-form-field appearance="outline">
+              <mat-label>Document type</mat-label>
+              <mat-select formControlName="documentType">
+                @for (t of docTypes; track t) { <mat-option [value]="t">{{ t }}</mat-option> }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Document number</mat-label>
+              <input matInput formControlName="documentNumber" />
+              <mat-hint>{{ hints[kycType()] }}</mat-hint>
+              @if (kycForm.hasError('format')) { <mat-error>Number does not match this document type</mat-error> }
+            </mat-form-field>
+            <div class="actions">
+              <button mat-flat-button type="submit" [disabled]="busy()">Save document</button>
+            </div>
+          </form>
+          <small>Saving a document sends your KYC for review. Numbers are shown masked.</small>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

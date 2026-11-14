@@ -1,0 +1,36 @@
+<div class="page">
+  <h2>Staff</h2>
+
+  <app-admin-joining />
+
+  @if (error(); as m) { <p class="error">{{ m }}</p> }
+  @if (info(); as m) { <p class="ok">{{ m }}</p> }
+
+  <h3>Team</h3>
+  @if (result(); as r) {
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Posting</th><th>Port</th><th></th></tr></thead>
+      <tbody>
+        @for (s of r.content; track s.userId) {
+          <tr>
+            <td>{{ s.name }}</td>
+            <td>{{ s.email }}</td>
+            <td>{{ s.role }}</td>
+            <td>{{ s.emailVerified ? 'Active' : 'Invite pending' }}</td>
+            <td>{{ s.posting }}</td>
+            <td>{{ s.assignedPortId ? fleet.portName(s.assignedPortId) : '' }}</td>
+            <td>
+              @if (!s.emailVerified) {
+                <button mat-button type="button" (click)="resend(s)">Resend</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <mat-paginator [length]="r.totalElements" [pageSize]="r.pageSize" [pageIndex]="r.pageNumber"
+                   [hidePageSize]="true" (page)="onPage($event)" />
+  }
+</div>
+<app-admin-hiring />
+<app-admin-resignations />

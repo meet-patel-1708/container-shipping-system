@@ -1,0 +1,28 @@
+<div class="page">
+  <aside class="panel">
+    <small class="conn {{ tracking.status() }}">
+      <mat-icon inline>circle</mat-icon> {{ tracking.status() }}
+    </small>
+    @if (loading()) { <p>Loading your containers…</p> }
+    @if (error(); as e) { <p class="error">{{ e }}</p> }
+    @for (c of containers(); track c.containerId) {
+      <button type="button" class="row" [class.sel]="c.containerId === selectedId()" (click)="select(c.containerId)">
+        <strong>Container #{{ c.containerId }}</strong>
+        <span class="badge {{ c.status }}">{{ c.status.replace('_', ' ') }}</span>
+        <small>{{ fleet.portName(c.originPortId) }} → {{ fleet.portName(c.destPortId) }}</small>
+        @if (positions()[c.containerId]; as p) {
+          <small>{{ (p.speedKmph ?? 0) | number: '1.0-0' }} km/h · updated {{ p.recordedAt | date: 'mediumTime' }}</small>
+        } @else if (isDemo(c)) {
+  <small>🚢 Simulated ship sailing {{ fleet.portName(c.originPortId) }} → {{ fleet.portName(c.destPortId) }}</small>
+} @else if (noRoute(c)) {
+  <small class="error">Port coordinates are missing. Add them in Fleet.</small>
+} @else {
+  <small>Waiting for the first GPS signal…</small>
+}
+      </button>
+    } @empty {
+      @if (!loading()) { <p>No container of yours is on the move yet. It appears here once it ships.</p> }
+    }
+  </aside>
+  <div class="map" #map></div>
+</div>

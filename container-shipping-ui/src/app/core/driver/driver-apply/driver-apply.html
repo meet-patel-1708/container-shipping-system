@@ -1,0 +1,144 @@
+<div class="page">
+  @if (loading()) {
+    <mat-spinner diameter="36" />
+  } @else {
+    <h2>Become a driver</h2>
+
+    @if (error(); as msg) { <p class="error">{{ msg }}</p> }
+
+    @switch (app()?.status) {
+
+      @case ('SUBMITTED') {
+        <h3>Application under review</h3>
+        <p>We received your application. An admin will review your documents soon.</p>
+        <button mat-stroked-button type="button" (click)="checkStatus()">Check status</button>
+      }
+
+      @case ('APPROVED') {
+        <h3 class="ok">You are approved as a driver</h3>
+        <p>Your account now has driver access.</p>
+        <button mat-flat-button type="button" (click)="goToDashboard()">Continue</button>
+      }
+
+      @default {
+        @if (app()?.rejectionReason; as reason) {
+          <div class="banner">
+            <strong>Your last application was rejected.</strong><br />
+            Reason: {{ reason }}<br />
+            Fix the issue below and submit again.
+          </div>
+        }
+
+        <mat-stepper [linear]="false" [selectedIndex]="step()"
+                     (selectionChange)="step.set($event.selectedIndex)">
+
+          <!-- 1. TYPE -->
+          <mat-step label="Type">
+            <div [formGroup]="form">
+              <mat-radio-group formControlName="driverType" class="radios">
+                <mat-radio-button value="VEHICLE_DRIVER">Vehicle driver (truck / trailer)</mat-radio-button><br />
+                <mat-radio-button value="SHIP_DRIVER">Ship crew / captain</mat-radio-button>
+              </mat-radio-group>
+            </div>
+            <div class="actions">
+              <button mat-flat-button type="button" (click)="step.set(1)">Next</button>
+            </div>
+          </mat-step>
+
+          <!-- 2. DETAILS -->
+          <mat-step label="Details">
+            <div [formGroup]="form">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ isVehicle() === 'VEHICLE_DRIVER' ? 'Driving licence number' : 'Seaman book / certificate number' }}</mat-label>
+                <input matInput formControlName="licenseNumber" />
+                @if (form.controls.licenseNumber.hasError('required')) {
+                  <mat-error>This field is required</mat-error>
+                } @else {
+                  <mat-error>5 to 30 letters, numbers, spaces or dashes</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Years of experience</mat-label>
+                <input matInput type="number" formControlName="experienceYears" />
+                <mat-error>Enter a number from 0 to 60</mat-error>
+              </mat-form-field>
+
+              @if (isVehicle() === 'VEHICLE_DRIVER') {
+                <mat-form-field appearance="outline">
+                  <mat-label>Vehicle number</mat-label>
+                  <input matInput formControlName="vehicleNumber" placeholder="GJ05AB1234" />
+                  @if (form.controls.vehicleNumber.hasError('required')) {
+                    <mat-error>Vehicle number is required</mat-error>
+                  } @else {
+                    <mat-error>4 to 20 letters, numbers, spaces or dashes</mat-error>
+                  }
+                </mat-form-field>
+              }
+            </div>
+            <div class="actions">
+              <button mat-button type="button" (click)="step.set(0)">Back</button>
+              <button mat-flat-button type="button" [disabled]="saving()" (click)="saveDetails()">
+                @if (saving()) { <mat-spinner diameter="20" /> } @else { Save and continue }
+              </button>
+            </div>
+          </mat-step>
+
+          <!-- 3. DOCUMENTS -->
+          <mat-step label="Documents">
+            @for (row of docRows(); track row.type) {
+              <div class="row">
+                <span class="label">
+                  {{ row.label }}
+                  @if (row.doc; as d) { <br /><small class="ok">{{ d.fileName }}</small> }
+                </span>
+
+                @if (uploading() === row.type) {
+                  <mat-spinner diameter="20" />
+                } @else {
+                  @if (row.doc) { <mat-icon class="ok">check_circle</mat-icon> }
+                  <input #f type="file" hidden
+                         accept="image/jpeg,image/png,application/pdf"
+                         (change)="onFile(row.type, $event)" />
+                  <button mat-stroked-button type="button" (click)="f.click()">
+                    {{ row.doc ? 'Replace' : 'Upload' }}
+                  </button>
+                }
+              </div>
+            }
+            <p><small>JPG, PNG or PDF, up to 5 MB each.</small></p>
+            <div class="actions">
+              <button mat-button type="button" (click)="step.set(1)">Back</button>
+              <button mat-flat-button type="button" [disabled]="!canSubmit()" (click)="step.set(3)">Next</button>
+            </div>
+          </mat-step>
+
+          <!-- 4. REVIEW -->
+          <mat-step label="Review">
+            @if (app(); as a) {
+              <dl>
+                <dt>Type</dt><dd>{{ a.driverType === 'VEHICLE_DRIVER' ? 'Vehicle driver' : 'Ship crew / captain' }}</dd>
+                <dt>Licence / certificate</dt><dd>{{ a.licenseNumber }}</dd>
+                <dt>Experience</dt><dd>{{ a.experienceYears }} years</dd>
+                @if (a.vehicleNumber) { <dt>Vehicle number</dt><dd>{{ a.vehicleNumber }}</dd> }
+                <dt>Documents</dt>
+                <dd>
+                  @for (d of a.documents; track d.documentId) {
+                    {{ labels[d.documentType] }}: {{ d.fileName }}<br />
+                  }
+                </dd>
+              </dl>
+            }
+            <div class="actions">
+              <button mat-button type="button" (click)="step.set(2)">Back</button>
+              <button mat-flat-button type="button" [disabled]="!canSubmit() || saving()" (click)="submit()">
+                @if (saving()) { <mat-spinner diameter="20" /> } @else { Submit application }
+              </button>
+            </div>
+          </mat-step>
+
+        </mat-stepper>
+      }
+    }
+  }
+</div>

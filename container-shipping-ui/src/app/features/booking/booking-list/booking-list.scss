@@ -1,0 +1,438 @@
+
+:host {
+  --primary: #4f46e5;
+  --primary-dark: #3730a3;
+  --primary-light: #eef2ff;
+  --accent: #0d9488;
+  --text: #172033;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --background: #f5f7fc;
+
+  display: block;
+  color: var(--text);
+  font-family: Inter, Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Page header */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.head h2 {
+  margin: 0 0 6px;
+  color: #172554;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+}
+
+.head small {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* New booking button */
+.head a[mat-flat-button] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #6366f1);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 750;
+  box-shadow: 0 6px 15px rgb(79 70 229 / 18%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.head a[mat-flat-button]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 9px 20px rgb(79 70 229 / 25%);
+}
+
+.head a mat-icon {
+  margin-right: 6px;
+}
+
+/* Status filters */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  width: fit-content;
+  margin-bottom: 20px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+}
+
+.filters mat-button-toggle {
+  color: #64748b;
+  background: #fff;
+  border: 0;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.filters mat-button-toggle:hover {
+  background: #f8faff;
+}
+
+::ng-deep .filters .mat-button-toggle-checked {
+  color: var(--primary-dark);
+  background: var(--primary-light);
+}
+
+::ng-deep .filters .mat-button-toggle-label-content {
+  padding: 0 16px;
+  line-height: 40px;
+}
+
+/* Loading bar */
+.bar {
+  min-height: 4px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.bar mat-progress-bar {
+  --mdc-linear-progress-active-indicator-color: var(--primary);
+  --mdc-linear-progress-track-color: #e0e7ff;
+}
+
+/* Table wrapper */
+.scroll {
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: 0 8px 26px rgb(15 23 42 / 4%);
+  transition: opacity 0.2s ease;
+}
+
+.scroll.dim {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Bookings table */
+table[mat-table] {
+  width: 100%;
+  min-width: 850px;
+  background: #fff;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.mat-mdc-header-row {
+  height: 54px;
+  background: #f8faff;
+}
+
+.mat-mdc-header-cell {
+  padding: 0 16px;
+  color: #64748b;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mat-mdc-row {
+  height: 68px;
+  transition: background 0.18s ease;
+}
+
+.mat-mdc-row:hover {
+  background: #f8faff;
+}
+
+.mat-mdc-cell {
+  padding: 10px 16px;
+  color: #334155;
+  border-bottom: 1px solid #edf0f5;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.mat-mdc-row:last-child .mat-mdc-cell {
+  border-bottom: none;
+}
+
+/* Booking ID link */
+.mat-mdc-cell a[routerLink] {
+  color: var(--primary);
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.mat-mdc-cell a[routerLink]:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Status badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.35px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* Adjust these class names to match your actual backend statuses */
+.badge.PENDING {
+  color: #92400e;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.badge.CONFIRMED {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.badge.PAID {
+  color: #065f46;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.badge.IN_TRANSIT {
+  color: #5b21b6;
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+}
+
+.badge.DELIVERED,
+.badge.COMPLETED {
+  color: #065f46;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.badge.CANCELLED,
+.badge.REJECTED,
+.badge.FAILED {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.badge.REFUNDED {
+  color: #475569;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Row action buttons */
+.mat-mdc-cell a[mat-icon-button],
+.mat-mdc-cell button[mat-icon-button] {
+  width: 36px;
+  height: 36px;
+  margin: 0 2px;
+  color: var(--primary);
+  border-radius: 9px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.mat-mdc-cell a[mat-icon-button]:hover {
+  color: var(--primary-dark);
+  background: var(--primary-light);
+}
+
+.mat-mdc-cell button[mat-icon-button] {
+  color: #dc2626;
+}
+
+.mat-mdc-cell button[mat-icon-button]:hover {
+  background: #fee2e2;
+}
+
+/* Empty and error states */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+  margin: 16px 0;
+  padding: 32px 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 8px 26px rgb(15 23 42 / 3%);
+  animation: state-enter 0.3s ease-out;
+}
+
+.state > mat-icon {
+  width: 54px;
+  height: 54px;
+  margin-bottom: 14px;
+  color: #818cf8;
+  font-size: 48px;
+  line-height: 54px;
+}
+
+.state p {
+  max-width: 420px;
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.state button[mat-stroked-button] {
+  min-height: 40px;
+  padding: 0 18px;
+  color: var(--primary);
+  border-color: #c7d2fe;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.state button[mat-stroked-button]:hover {
+  background: var(--primary-light);
+}
+
+.state a[mat-flat-button] {
+  min-height: 44px;
+  padding: 0 18px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #6366f1);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+/* Pagination */
+mat-paginator {
+  margin-top: 14px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+::ng-deep mat-paginator .mat-mdc-paginator-container {
+  min-height: 56px;
+  padding: 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+::ng-deep mat-paginator .mat-mdc-icon-button {
+  color: var(--primary);
+}
+
+::ng-deep mat-paginator .mat-mdc-icon-button:disabled {
+  color: #cbd5e1;
+}
+
+/* Focus visibility */
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid #a5b4fc;
+  outline-offset: 3px;
+}
+
+/* Animation */
+@keyframes state-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tablet and mobile */
+@media (max-width: 700px) {
+  .head {
+    align-items: flex-start;
+  }
+
+  .head h2 {
+    font-size: 24px;
+  }
+
+  .head a[mat-flat-button] {
+    min-height: 42px;
+  }
+
+  .filters {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .filters mat-button-toggle {
+    flex: 0 0 auto;
+  }
+
+  .state {
+    min-height: 220px;
+    padding: 24px 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .head {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .head a[mat-flat-button] {
+    width: 100%;
+  }
+
+  .filters ::ng-deep .mat-button-toggle-label-content {
+    padding: 0 11px;
+    line-height: 38px;
+  }
+
+  ::ng-deep mat-paginator .mat-mdc-paginator-container {
+    padding: 0 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

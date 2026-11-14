@@ -1,0 +1,6 @@
+.fleet-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 16px 0 8px; }
+.fleet-search { flex: 1; min-width: 220px; max-width: 360px; }
+.fleet-scroll { overflow-x: auto; }
+.fleet-scroll table { width: 100%; }
+.fleet-state { display: grid; justify-items: center; gap: 8px; padding: 48px 16px; text-align: center; }
+.fleet-state mat-icon { font-size: 48px; width: 48px; height: 48px; opacity: .5; }

@@ -1,0 +1,65 @@
+<div class="page">
+  <h2>KYC review</h2>
+
+  <mat-button-toggle-group [value]="filter()" (change)="setFilter($event.value)">
+    @for (f of filters; track f) {
+      <mat-button-toggle [value]="f">{{ f }}</mat-button-toggle>
+    }
+  </mat-button-toggle-group>
+
+  @if (error(); as m) { <p class="error">{{ m }}</p> }
+  @if (info(); as m) { <p class="ok">{{ m }}</p> }
+
+  <div class="grid">
+    <div>
+      @if (loading()) {
+        <mat-spinner diameter="28" />
+      } @else if (result(); as r) {
+        @if (r.content.length === 0) {
+          <p>No KYC records in this view.</p>
+        } @else {
+          <table>
+            <thead><tr><th>Customer</th><th>Documents</th><th>Status</th></tr></thead>
+            <tbody>
+              @for (k of r.content; track k.kycId) {
+                <tr class="clickable" [class.selected]="selected()?.kycId === k.kycId" (click)="select(k)">
+                  <td>{{ k.userName }}</td>
+                  <td>{{ k.documents.length }}</td>
+                  <td>{{ k.status }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <mat-paginator [length]="r.totalElements" [pageSize]="r.pageSize" [pageIndex]="r.pageNumber"
+                         [hidePageSize]="true" (page)="onPage($event)" />
+        }
+      }
+    </div>
+
+    <div class="panel">
+      @if (selected(); as k) {
+        <h3>{{ k.userName }}</h3>
+        <p>{{ k.userEmail }}<br />Status: <strong>{{ k.status }}</strong></p>
+
+        <h4>Documents</h4>
+        @for (d of k.documents; track d.documentId) {
+          <p>{{ d.documentType }}: <code>{{ d.documentNumber }}</code></p>
+        } @empty {
+          <p class="error">This customer has not uploaded any document yet.</p>
+        }
+
+        <div class="actions">
+          <button mat-flat-button type="button"
+                  [disabled]="busy() || k.documents.length === 0 || k.status === 'VERIFIED'"
+                  (click)="decide(k, 'VERIFIED')">Verify</button>
+          <button mat-stroked-button type="button"
+                  [disabled]="busy() || k.status === 'REJECTED'"
+                  (click)="decide(k, 'REJECTED')">Reject</button>
+        </div>
+        <small>A rejected customer can upload a corrected document, which sends the KYC back to Pending.</small>
+      } @else {
+        <p>Select a record to review it.</p>
+      }
+    </div>
+  </div>
+</div>
