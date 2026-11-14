@@ -1,0 +1,79 @@
+x-base: &base
+  network_mode: host
+  restart: unless-stopped
+x-env: &env
+  JAVA_OPTS: "-Xms128m -Xmx320m"
+  JWT_SECRET: ${JWT_SECRET}
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: ${INFRA_HOST}:9092
+  SPRING_DATA_REDIS_HOST: ${INFRA_HOST}
+  SPRING_DATASOURCE_USERNAME: ${DB_USER}
+  SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+services:
+  api-gateway:
+    <<: *base
+    image: ${ECR}/shipping/api-gateway:latest
+    environment: {<<: *env}
+  auth-service:
+    <<: *base
+    image: ${ECR}/shipping/auth-service:latest
+    volumes: ["/opt/shipping/uploads:/data/uploads"]
+    environment:
+      <<: *env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/auth_service
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+      APP_FRONTEND_URL: ${APP_URL}
+      APP_UPLOAD_DIR: /data/uploads
+  catalog-service:
+    <<: *base
+    image: ${ECR}/shipping/catalog-service:latest
+    environment:
+      <<: *env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/catalog_service
+
+  fleet-service:
+      <<: *base
+      image: ${ECR}/shipping/fleet-service:latest
+      environment:
+        <<: *env
+        SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/fleet_service
+
+  booking-service:
+      <<: *base
+      image: ${ECR}/shipping/booking-service:latest
+      environment:
+        <<: *env
+        SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/booking_service
+
+  payment-service:
+      <<: *base
+      image: ${ECR}/shipping/payment-service:latest
+      environment:
+        <<: *env
+        SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/payment_service
+        RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID}        # rename to match your property names
+        RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET}
+
+  notification-service:
+      <<: *base
+      image: ${ECR}/shipping/notification-service:latest
+      environment:
+        <<: *env
+        SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/notification_service
+        SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
+        SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+        TWILIO_ENABLED: "true"
+        TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+        TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+        TWILIO_FROM: ${TWILIO_FROM}
+
+  gps-service:
+      <<: *base
+      image: ${ECR}/shipping/gps-service:latest
+      environment:
+        <<: *env
+        SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/gps_service
+
+  ui:
+      <<: *base
+      image: ${ECR}/shipping/ui:latest
