@@ -72,7 +72,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::772621378889:role/github-deploy-role
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Publish compose file
