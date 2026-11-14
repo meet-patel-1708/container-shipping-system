@@ -1,1 +1,10 @@
+target/
+out/
+.idea/
+*.iml
+node_modules/
+dist/
+.angular/
+uploads/
 .env
+.env.*c
