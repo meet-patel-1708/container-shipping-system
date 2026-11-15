@@ -1,146 +1,144 @@
-  name: build-and-deploy
+name: build-and-deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
-  on:
-    push:
-      branches: [main]
-    workflow_dispatch:
+permissions:
+  id-token: write
+  contents: read
 
-  permissions:
-    id-token: write
-    contents: read
+env:
+  AWS_REGION: ap-south-1
+  ASG_NAME: Shipping-asg
+  BUCKET: shipping-deploy-772621378889
 
-  env:
-    AWS_REGION: ap-south-1
-    ASG_NAME: Shipping-asg
-    BUCKET: shipping-deploy-772621378889
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auth-service
+          - catalog-service
+          - fleet-service
+          - booking-service
+          - payment-service
+          - notification-service
+          - gps-service
 
-  jobs:
-    backend:
-      runs-on: ubuntu-latest
-      strategy:
-        fail-fast: false
-        matrix:
-          service:
-            - api-gateway
-            - auth-service
-            - catalog-service
-            - fleet-service
-            - booking-service
-            - payment-service
-            - notification-service
-            - gps-service
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
 
-        - name: Setup Java
-          uses: actions/setup-java@v4
-          with:
-            distribution: temurin
-            java-version: '21'
-            cache: maven
+      - name: Build jar
+        run: mvn -B -DskipTests package
+        working-directory: ${{ matrix.service }}
 
-        - name: Build jar
-          run: mvn -B -DskipTests package
-          working-directory: ${{ matrix.service }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-        - name: Login to Docker Hub
-          uses: docker/login-action@v3
-          with:
-            username: ${{ secrets.DOCKERHUB_USER }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-        - name: Build and push image
-          env:
-            DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
-            IMAGE_TAG: ${{ github.sha }}
-            SERVICE: ${{ matrix.service }}
-          run: |
-            IMG="${DOCKERHUB_USER}/shipping-${SERVICE}"
+      - name: Build and push image
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
+          IMAGE_TAG: ${{ github.sha }}
+          SERVICE: ${{ matrix.service }}
+        run: |
+          IMG="${DOCKERHUB_USER}/shipping-${SERVICE}"
             
-            docker build \
-              -f deploy/Dockerfile.service \
-              -t "${IMG}:latest" \
-              -t "${IMG}:${IMAGE_TAG}" \
-              "${SERVICE}"
+          docker build \
+            -f deploy/Dockerfile.service \
+            -t "${IMG}:latest" \
+            -t "${IMG}:${IMAGE_TAG}" \
+            "${SERVICE}"
             
-            docker push "${IMG}:latest"
-            docker push "${IMG}:${IMAGE_TAG}"
+          docker push "${IMG}:latest"
+          docker push "${IMG}:${IMAGE_TAG}"
 
-    ui:
-      runs-on: ubuntu-latest
+  ui:
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        - name: Login to Docker Hub
-          uses: docker/login-action@v3
-          with:
-            username: ${{ secrets.DOCKERHUB_USER }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-        - name: Build and push UI image
-          env:
-            DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
-            IMAGE_TAG: ${{ github.sha }}
-          run: |
-            IMG="${DOCKERHUB_USER}/shipping-ui"
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push UI image
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMG="${DOCKERHUB_USER}/shipping-ui"
             
-            docker build \
-              -t "${IMG}:latest" \
-              -t "${IMG}:${IMAGE_TAG}" \
-              container-shipping-ui
+          docker build \
+            -t "${IMG}:latest" \
+            -t "${IMG}:${IMAGE_TAG}" \
+            container-shipping-ui
             
-            docker push "${IMG}:latest"
-            docker push "${IMG}:${IMAGE_TAG}"
+          docker push "${IMG}:latest"
+          docker push "${IMG}:${IMAGE_TAG}"
 
-    deploy:
-      needs: [backend, ui]
-      runs-on: ubuntu-latest
+  deploy:
+    needs: [backend, ui]
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            role-to-assume: arn:aws:iam::772621378889:role/github-deploy-role
-            aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::772621378889:role/github-deploy-role
+          aws-region: ${{ env.AWS_REGION }}
 
-        - name: Publish Docker Compose file
-          run: |
-            aws s3 cp \
-              deploy/docker-compose.yml \
-              s3://${{ env.BUCKET }}/deploy/docker-compose.yml
+      - name: Publish Docker Compose file
+        run: |
+          aws s3 cp \
+            deploy/docker-compose.yml \
+            s3://${{ env.BUCKET }}/deploy/docker-compose.yml
 
-        - name: Check existing instance refresh
-          id: refresh
-          run: |
-            STATUS=$(aws autoscaling describe-instance-refreshes \
-              --auto-scaling-group-name "${ASG_NAME}" \
-              --max-records 1 \
-              --query 'InstanceRefreshes[0].Status' \
-              --output text)
+      - name: Check existing instance refresh
+        id: refresh
+        run: |
+          STATUS=$(aws autoscaling describe-instance-refreshes \
+            --auto-scaling-group-name "${ASG_NAME}" \
+            --max-records 1 \
+            --query 'InstanceRefreshes[0].Status' \
+            --output text)
             
-            echo "Current instance refresh status: ${STATUS}"
+          echo "Current instance refresh status: ${STATUS}"
             
-            if [[ "${STATUS}" == "Pending" || "${STATUS}" == "InProgress" || "${STATUS}" == "Cancelling" ]]; then
-              echo "An instance refresh is already running. Skipping new refresh."
-              echo "start=false" >> "$GITHUB_OUTPUT"
-            else
-              echo "start=true" >> "$GITHUB_OUTPUT"
-            fi
+          if [[ "${STATUS}" == "Pending" || "${STATUS}" == "InProgress" || "${STATUS}" == "Cancelling" ]]; then
+            echo "An instance refresh is already running. Skipping new refresh."
+            echo "start=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "start=true" >> "$GITHUB_OUTPUT"
+          fi
 
-        - name: Start instance refresh
-          if: steps.refresh.outputs.start == 'true'
-          run: |
-            aws autoscaling start-instance-refresh \
-              --auto-scaling-group-name "${ASG_NAME}" \
-              --preferences '{
-                "MinHealthyPercentage": 100,
-                "MaxHealthyPercentage": 200,
-                "InstanceWarmup": 300
-              }'
+      - name: Start instance refresh
+        if: steps.refresh.outputs.start == 'true'
+        run: |
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name "${ASG_NAME}" \
+            --preferences '{
+              "MinHealthyPercentage": 100,
+              "MaxHealthyPercentage": 200,
+              "InstanceWarmup": 300
+            }'

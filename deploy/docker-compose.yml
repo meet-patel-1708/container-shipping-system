@@ -11,11 +11,11 @@ x-env: &env
 services:
   api-gateway:
     <<: *base
-    image: ${ECR}/shipping/api-gateway:latest
+    image: ${HUB}/shipping-api-gateway:latest
     environment: {<<: *env}
   auth-service:
     <<: *base
-    image: ${ECR}/shipping/auth-service:latest
+    image: ${HUB}/shipping-auth-service:latest
     volumes: ["/opt/shipping/uploads:/data/uploads"]
     environment:
       <<: *env
@@ -26,28 +26,28 @@ services:
       APP_UPLOAD_DIR: /data/uploads
   catalog-service:
     <<: *base
-    image: ${ECR}/shipping/catalog-service:latest
+    image: ${HUB}/shipping-catalog-service:latest
     environment:
       <<: *env
       SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/catalog_service
 
   fleet-service:
       <<: *base
-      image: ${ECR}/shipping/fleet-service:latest
+      image: ${HUB}/shipping-fleet-service:latest
       environment:
         <<: *env
         SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/fleet_service
 
   booking-service:
       <<: *base
-      image: ${ECR}/shipping/booking-service:latest
+      image: ${HUB}/shipping-booking-service:latest
       environment:
         <<: *env
         SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/booking_service
 
   payment-service:
       <<: *base
-      image: ${ECR}/shipping/payment-service:latest
+      image: ${HUB}/shipping-payment-service:latest
       environment:
         <<: *env
         SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/payment_service
@@ -56,7 +56,7 @@ services:
 
   notification-service:
       <<: *base
-      image: ${ECR}/shipping/notification-service:latest
+      image: ${HUB}/shipping-notification-service:latest
       environment:
         <<: *env
         SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/notification_service
@@ -69,11 +69,11 @@ services:
 
   gps-service:
       <<: *base
-      image: ${ECR}/shipping/gps-service:latest
+      image: ${HUB}/shipping-gps-service:latest
       environment:
         <<: *env
         SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/gps_service
 
   ui:
       <<: *base
-      image: ${ECR}/shipping/ui:latest
+      image: ${HUB}/shipping-ui:latest
