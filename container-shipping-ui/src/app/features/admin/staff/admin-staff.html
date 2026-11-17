@@ -16,7 +16,13 @@
             <td>{{ s.name }}</td>
             <td>{{ s.email }}</td>
             <td>{{ s.role }}</td>
-            <td>{{ s.emailVerified ? 'Active' : 'Invite pending' }}</td>
+            <td>
+  <span class="status-badge"
+        [class.active]="s.emailVerified"
+        [class.pending]="!s.emailVerified">
+    {{ s.emailVerified ? 'Active' : 'Invite pending' }}
+  </span>
+            </td>
             <td>{{ s.posting }}</td>
             <td>{{ s.assignedPortId ? fleet.portName(s.assignedPortId) : '' }}</td>
             <td>
