@@ -14,41 +14,8 @@ import { StaffApi } from '../../../core/staff/staff-api';
   selector: 'app-dashboard',
   imports: [DatePipe, RouterLink, MatCardModule, MatButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [`
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
-    .num { font-size: 32px; font-weight: 600; margin: 8px 0 0; }
-    .wrap { padding: 16px; }
-  `],
-  template: `
-    <div class="wrap">
-      <h2>Welcome, {{ user()?.name }} 👋</h2>
-        <div class="stats">
-          @if (isStaff()) {
-  <h3>Container space</h3>
-  @for (c of load(); track c.containerId) {
-    <p>Container #{{ c.containerId }}: <strong>{{ c.remainingKg }} kg free</strong> of {{ c.capacityKg }} kg ({{ c.allocatedKg }} kg booked)</p>
-  } @empty { <p>No container has bookings yet.</p> }
-}
-          <mat-card appearance="outlined"><mat-card-content>
-            Active bookings<p class="num">{{ summary()?.activeBookings ?? '—' }}</p>
-          </mat-card-content></mat-card>
-          <mat-card appearance="outlined"><mat-card-content>
-            Containers in transit<p class="num">{{ summary()?.containersInTransit ?? '—' }}</p>
-          </mat-card-content></mat-card>
-          <mat-card appearance="outlined"><mat-card-content>
-            Pending payments<p class="num">{{ summary()?.pendingPayments ?? '—' }}</p>
-          </mat-card-content></mat-card>
-          <mat-card appearance="outlined"><mat-card-content>
-            Member since<p class="num">{{ user()?.createdAt | date: 'MMM d, y' }}</p>
-          </mat-card-content></mat-card>
-        </div>
-        @if (user()?.role === 'USER') {
-          <p><a mat-flat-button routerLink="/bookings/new">New booking</a>
-             <a mat-button routerLink="/tracking">Live tracking</a></p>
-        }
-      
-    </div>
-  `,
+  styleUrl: './dashboard.scss',
+  templateUrl:'./dashboard.html' ,
 })
 export class Dashboard {
   protected readonly user = inject(Auth).user;

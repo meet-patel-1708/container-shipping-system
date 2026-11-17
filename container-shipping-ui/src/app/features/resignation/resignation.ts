@@ -9,8 +9,128 @@ import { Resignation, ResignationService } from '../../core/resignation/resignat
   selector: 'app-resignation',
   imports: [DatePipe, FormsModule, MatButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [`.page{max-width:700px;margin:24px auto;padding:0 16px}.box{border:1px solid #ddd;border-radius:8px;padding:12px;margin:12px 0}
-    textarea{width:100%;padding:8px}.error{color:#b00020}.ok{color:#2e7d32}`],
+
+styles: [`
+  .page {
+    max-width: 850px;
+    margin: 32px auto;
+    padding: 24px;
+    color: #172554;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 750;
+    color: #172554;
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+  }
+
+  .box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px;
+    margin: 18px 0;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .box:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+  }
+
+  .box strong {
+    color: #172554;
+    font-weight: 700;
+  }
+
+  .box p {
+    color: #475569;
+    line-height: 1.7;
+    margin: 14px 0;
+  }
+
+  .box small {
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 120px;
+    padding: 14px;
+    margin: 16px 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #1e293b;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  textarea:focus {
+    border-color: #6366f1;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  }
+
+  textarea::placeholder {
+    color: #94a3b8;
+  }
+
+  button {
+    border-radius: 9px !important;
+    font-weight: 600 !important;
+    padding: 8px 18px !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 9px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 14px;
+  }
+
+  .ok {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+    border-radius: 9px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 14px;
+  }
+
+  @media (max-width: 600px) {
+    .page {
+      padding: 16px;
+      margin: 12px auto;
+    }
+
+    h2 {
+      font-size: 23px;
+    }
+
+    .box {
+      padding: 18px;
+    }
+
+    textarea {
+      min-height: 100px;
+    }
+  }
+`],
+
   template: `
     <div class="page">
       <h2>Resignation</h2>
