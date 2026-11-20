@@ -4,7 +4,7 @@ import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PagedResponse } from '../auth/auth.models';
 import { SKIP_ERROR_TOAST } from '../interceptors/error-interceptor';
-import { Booking, BookingStatus, ContainerLoad, MovementResult } from '../../features/booking/booking.models';
+import { Booking, BookingStatus, ContainerLoad, MovementResult,MergeCandidate } from '../../features/booking/booking.models';
 
 const silent = () => new HttpContext().set(SKIP_ERROR_TOAST, true);
 

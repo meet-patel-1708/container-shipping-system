@@ -176,7 +176,7 @@
           @if (saving()) { <mat-spinner diameter="20" /> } @else { Confirm booking }
         </button>
       </div>
-      <p><strong>Goods to port on:</strong> {{ review().scheduleAt | date: 'medium' }}</p>
+      <p><strong>Goods to port on:</strong> {{ review().scheduleDate | date: 'medium' }}</p>
     </mat-step>
 
   </mat-stepper>
