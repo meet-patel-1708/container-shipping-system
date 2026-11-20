@@ -1,183 +1,183 @@
-<div class="head"><h2>New booking</h2></div>
+  <div class="head"><h2>New booking</h2></div>
 
-@if (eligibility(); as e) {
-  @if (!e.eligible) {
-    <p class="error">
-      Before you can book, add {{ e.missing.join(' and ').replace('KYC_DOCUMENT', 'a KYC document').replace('ADDRESS', 'an address') }}.
-      <a routerLink="/profile">Open profile</a>
-    </p>
+  @if (eligibility(); as e) {
+    @if (!e.eligible) {
+      <p class="error">
+        Before you can book, add {{ e.missing.join(' and ').replace('KYC_DOCUMENT', 'a KYC document').replace('ADDRESS', 'an address') }}.
+        <a routerLink="/profile">Open profile</a>
+      </p>
+    }
   }
-}
 
-@if (fleet.error(); as e) { <p class="error">{{ e }}</p> }
+  @if (fleet.error(); as e) { <p class="error">{{ e }}</p> }
 
-<form [formGroup]="form">
-  <mat-stepper linear #stepper>
+  <form [formGroup]="form">
+    <mat-stepper linear #stepper>
 
-    <!-- Step 1: Route -->
-    <mat-step [stepControl]="form.controls.route" label="Route & container">
-      <div formGroupName="route" class="grid">
-        <mat-form-field appearance="outline">
-          <mat-label>Origin port</mat-label>
-          <mat-select formControlName="originPortId">
-            @for (p of fleet.ports(); track p.portId) {
-              <mat-option [value]="p.portId">{{ p.portName }} ({{ p.portCode }})</mat-option>
+      <!-- Step 1: Route -->
+      <mat-step [stepControl]="form.controls.route" label="Route & container">
+        <div formGroupName="route" class="grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Origin port</mat-label>
+            <mat-select formControlName="originPortId">
+              @for (p of fleet.ports(); track p.portId) {
+                <mat-option [value]="p.portId">{{ p.portName }} ({{ p.portCode }})</mat-option>
+              }
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Destination port</mat-label>
+            <mat-select formControlName="destPortId">
+              @for (p of fleet.ports(); track p.portId) {
+                <mat-option [value]="p.portId">{{ p.portName }} ({{ p.portCode }})</mat-option>
+              }
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Ship</mat-label>
+            <mat-select formControlName="shipId">
+              @for (s of fleet.ships(); track s.shipId) {
+                <mat-option [value]="s.shipId">{{ s.shipCompanyName }} · {{ s.shipCode }}</mat-option>
+              }
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Container</mat-label>
+            <mat-select formControlName="containerId">
+              @for (c of containers(); track c.containerId) {
+                <mat-option [disabled]="c.remainingKg <= 0" [value]="c.containerId">{{ containerLabel(c) }}</mat-option>
+              }
+            </mat-select>
+            @if (containers().length === 0) {
+              <mat-hint>
+                No containers available.
+                @if (auth.isAdmin()) { <a routerLink="/containers">Add some</a> } @else { Please contact an admin. }
+              </mat-hint>
             }
-          </mat-select>
-          <mat-error>Required</mat-error>
-        </mat-form-field>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Destination port</mat-label>
-          <mat-select formControlName="destPortId">
-            @for (p of fleet.ports(); track p.portId) {
-              <mat-option [value]="p.portId">{{ p.portName }} ({{ p.portCode }})</mat-option>
-            }
-          </mat-select>
-          <mat-error>Required</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Ship</mat-label>
-          <mat-select formControlName="shipId">
-            @for (s of fleet.ships(); track s.shipId) {
-              <mat-option [value]="s.shipId">{{ s.shipCompanyName }} · {{ s.shipCode }}</mat-option>
-            }
-          </mat-select>
-          <mat-error>Required</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>Container</mat-label>
-          <mat-select formControlName="containerId">
-            @for (c of containers(); track c.containerId) {
-              <mat-option [disabled]="c.remainingKg <= 0" [value]="c.containerId">{{ containerLabel(c) }}</mat-option>
-            }
-          </mat-select>
-          @if (containers().length === 0) {
-            <mat-hint>
-              No containers available.
-              @if (auth.isAdmin()) { <a routerLink="/containers">Add some</a> } @else { Please contact an admin. }
-            </mat-hint>
+          @if (form.controls.route.hasError('samePort')) {
+            <p class="error full">Origin and destination must be different ports.</p>
           }
-          <mat-error>Required</mat-error>
-        </mat-form-field>
+        </div>
+        <p class="hint">You deliver your goods to the origin port yourself. Port staff will email you a code to confirm receipt.</p>
+        <div class="nav">
+          <button mat-flat-button matStepperNext type="button"
+                  (click)="form.controls.route.markAllAsTouched()">Next</button>
+        </div>
+      </mat-step>
+  <mat-step [stepControl]="form.controls.schedule" label="Schedule">
+    <div formGroupName="schedule" class="grid">
+      <mat-form-field appearance="outline">
+    <mat-label>Ship departure date & time</mat-label>
+    <input matInput type="datetime-local" formControlName="scheduleDate" [min]="minDateTime" />
+    <mat-error>Choose a future date and time</mat-error>
+  </mat-form-field>
+    </div>
+    <p class="hint">Port staff can receive your goods only from this date.</p>
+    <div class="nav">
+      <button mat-button matStepperPrevious type="button">Back</button>
+      <button mat-flat-button matStepperNext type="button" (click)="form.controls.schedule.markAllAsTouched()">Next</button>
+    </div>
+  </mat-step>
+  <!-- Review: -->
 
-        @if (form.controls.route.hasError('samePort')) {
-          <p class="error full">Origin and destination must be different ports.</p>
-        }
-      </div>
-      <p class="hint">You deliver your goods to the origin port yourself. Port staff will email you a code to confirm receipt.</p>
-      <div class="nav">
-        <button mat-flat-button matStepperNext type="button"
-                (click)="form.controls.route.markAllAsTouched()">Next</button>
-      </div>
-    </mat-step>
-<mat-step [stepControl]="form.controls.schedule" label="Schedule">
-  <div formGroupName="schedule" class="grid">
-    <mat-form-field appearance="outline">
-  <mat-label>Ship departure date & time</mat-label>
-  <input matInput type="datetime-local" formControlName="scheduleAt" [min]="minDateTime" />
-  <mat-error>Choose a future date and time</mat-error>
-</mat-form-field>
-  </div>
-  <p class="hint">Port staff can receive your goods only from this date.</p>
-  <div class="nav">
-    <button mat-button matStepperPrevious type="button">Back</button>
-    <button mat-flat-button matStepperNext type="button" (click)="form.controls.schedule.markAllAsTouched()">Next</button>
-  </div>
-</mat-step>
-<!-- Review: -->
+      <!-- Step 2: Products -->
+      <mat-step [stepControl]="form.controls.items" label="Products">
+        <div formArrayName="items" class="items">
+          @for (g of items.controls; track g; let i = $index) {
+            <div class="item" [formGroupName]="i">
+              <mat-form-field appearance="outline" class="prod">
+                <mat-label>Product</mat-label>
+                <mat-select formControlName="productId">
+                  @for (p of products(); track p.productId) {
+                    <mat-option [value]="p.productId" [disabled]="taken(p.productId, i)">
+                      {{ p.productCode }} · {{ p.productName }}
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-error>Required</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="qty">
+                <mat-label>Quantity</mat-label>
+                <input matInput type="number" min="1" formControlName="quantity" />
+                <mat-error>Whole number, 1 or more</mat-error>
+              </mat-form-field>
+              <button mat-icon-button type="button" (click)="removeItem(i)"
+                      [disabled]="items.length === 1" aria-label="Remove item">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+        @if (items.hasError('duplicateProduct')) { <p class="error">Each product can appear only once.</p> }
+        @if (products().length === 0) { <p class="hint">You have no products yet. Add some in the Catalog first.</p> }
+        <button mat-stroked-button type="button" (click)="addItem()"><mat-icon>add</mat-icon> Add product</button>
+        <div class="nav">
+          <button mat-button matStepperPrevious type="button">Back</button>
+          <button mat-flat-button matStepperNext type="button"
+                  (click)="items.markAllAsTouched()">Review</button>
+        </div>
+      </mat-step>
 
-    <!-- Step 2: Products -->
-    <mat-step [stepControl]="form.controls.items" label="Products">
-      <div formArrayName="items" class="items">
-        @for (g of items.controls; track g; let i = $index) {
-          <div class="item" [formGroupName]="i">
-            <mat-form-field appearance="outline" class="prod">
-              <mat-label>Product</mat-label>
-              <mat-select formControlName="productId">
-                @for (p of products(); track p.productId) {
-                  <mat-option [value]="p.productId" [disabled]="taken(p.productId, i)">
-                    {{ p.productCode }} · {{ p.productName }}
-                  </mat-option>
-                }
-              </mat-select>
-              <mat-error>Required</mat-error>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="qty">
-              <mat-label>Quantity</mat-label>
-              <input matInput type="number" min="1" formControlName="quantity" />
-              <mat-error>Whole number, 1 or more</mat-error>
-            </mat-form-field>
-            <button mat-icon-button type="button" (click)="removeItem(i)"
-                    [disabled]="items.length === 1" aria-label="Remove item">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        }
-      </div>
-      @if (items.hasError('duplicateProduct')) { <p class="error">Each product can appear only once.</p> }
-      @if (products().length === 0) { <p class="hint">You have no products yet. Add some in the Catalog first.</p> }
-      <button mat-stroked-button type="button" (click)="addItem()"><mat-icon>add</mat-icon> Add product</button>
-      <div class="nav">
-        <button mat-button matStepperPrevious type="button">Back</button>
-        <button mat-flat-button matStepperNext type="button"
-                (click)="items.markAllAsTouched()">Review</button>
-      </div>
-    </mat-step>
+      <!-- Step 3: Review -->
+      <mat-step label="Review">
+        <div class="review">
+          <p><strong>Route:</strong> {{ fleet.portName(review().originPortId ?? 0) }} → {{ fleet.portName(review().destPortId ?? 0) }}</p>
+          <p><strong>Ship:</strong> {{ fleet.shipName(review().shipId ?? 0) }}
+             &nbsp;·&nbsp; <strong>Container:</strong> #{{ review().containerId }}</p>
+          <p><strong>Total weight:</strong> {{ totalWeight() | number: '1.0-2' }} kg
+            @if (selectedContainer(); as c) { · <strong>Space left in container:</strong> {{ c.remainingKg }} kg }</p>
+          @if (overweight()) { <p class="error">These products are heavier than the space left. Pick another container or reduce quantities.</p> }
+          <table class="lines">
+            <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
+            <tbody>
+              @for (l of lines(); track $index) {
+                <tr>
+                  <td>{{ l.name }} <small>{{ l.code }}</small></td>
+                  <td>{{ l.qty }}</td>
+                  <td>{{ l.price | currency: 'INR' }}</td>
+                  <td>{{ l.subtotal | currency: 'INR' }}</td>
 
-    <!-- Step 3: Review -->
-    <mat-step label="Review">
-      <div class="review">
-        <p><strong>Route:</strong> {{ fleet.portName(review().originPortId ?? 0) }} → {{ fleet.portName(review().destPortId ?? 0) }}</p>
-        <p><strong>Ship:</strong> {{ fleet.shipName(review().shipId ?? 0) }}
-           &nbsp;·&nbsp; <strong>Container:</strong> #{{ review().containerId }}</p>
-        <p><strong>Total weight:</strong> {{ totalWeight() | number: '1.0-2' }} kg
-          @if (selectedContainer(); as c) { · <strong>Space left in container:</strong> {{ c.remainingKg }} kg }</p>
-        @if (overweight()) { <p class="error">These products are heavier than the space left. Pick another container or reduce quantities.</p> }
-        <table class="lines">
-          <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
-          <tbody>
-            @for (l of lines(); track $index) {
-              <tr>
-                <td>{{ l.name }} <small>{{ l.code }}</small></td>
-                <td>{{ l.qty }}</td>
-                <td>{{ l.price | currency: 'INR' }}</td>
-                <td>{{ l.subtotal | currency: 'INR' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr><td colspan="3">Total</td><td>{{ total() | currency: 'INR' }}</td></tr>
+            </tfoot>
+          </table>
+          <small>The final price is locked in by the server when you confirm.</small>
 
-              </tr>
-            }
-          </tbody>
-          <tfoot>
-            <tr><td colspan="3">Total</td><td>{{ total() | currency: 'INR' }}</td></tr>
-          </tfoot>
-        </table>
-        <small>The final price is locked in by the server when you confirm.</small>
+          @if (serverErrors().length) {
+            <ul class="error">@for (m of serverErrors(); track m) { <li>{{ m }}</li> }</ul>
+          }
+        </div>
+        <details class="terms">
+          <summary>Read the terms and conditions</summary>
+          <ol>
+            <li>I will bring my goods to the origin port on the departure day, packed safely and labelled.</li>
+            <li>The declared weight must be correct. Goods more than 5% different from the declared weight are rejected at the port.</li>
+            <li>Goods that are unpaid, rejected, or not delivered to the port before shipping are removed and the space is released.</li>
+            <li>The company may move my goods to another container of the same type, ship and route to avoid sending a half-empty container. My departure date and time will not change, and I will be informed by email.</li>
+            <li>Goods are handed over at the destination port only with the one-time code sent to me.</li>
+          </ol>
+        </details>
+        <mat-checkbox formControlName="terms">I accept the terms and conditions</mat-checkbox>
+        <div class="nav">
+          <button mat-button matStepperPrevious type="button">Back</button>
+          <button mat-flat-button type="button" (click)="submit()" [disabled]="saving() || form.invalid || blocked()">
+            @if (saving()) { <mat-spinner diameter="20" /> } @else { Confirm booking }
+          </button>
+        </div>
+        <p><strong>Goods to port on:</strong> {{ review().scheduleDate | date: 'medium' }}</p>
+      </mat-step>
 
-        @if (serverErrors().length) {
-          <ul class="error">@for (m of serverErrors(); track m) { <li>{{ m }}</li> }</ul>
-        }
-      </div>
-      <details class="terms">
-        <summary>Read the terms and conditions</summary>
-        <ol>
-          <li>I will bring my goods to the origin port on the departure day, packed safely and labelled.</li>
-          <li>The declared weight must be correct. Goods more than 5% different from the declared weight are rejected at the port.</li>
-          <li>Goods that are unpaid, rejected, or not delivered to the port before shipping are removed and the space is released.</li>
-          <li>The company may move my goods to another container of the same type, ship and route to avoid sending a half-empty container. My departure date and time will not change, and I will be informed by email.</li>
-          <li>Goods are handed over at the destination port only with the one-time code sent to me.</li>
-        </ol>
-      </details>
-      <mat-checkbox formControlName="terms">I accept the terms and conditions</mat-checkbox>
-      <div class="nav">
-        <button mat-button matStepperPrevious type="button">Back</button>
-        <button mat-flat-button type="button" (click)="submit()" [disabled]="saving() || form.invalid || blocked()">
-          @if (saving()) { <mat-spinner diameter="20" /> } @else { Confirm booking }
-        </button>
-      </div>
-      <p><strong>Goods to port on:</strong> {{ review().scheduleDate | date: 'medium' }}</p>
-    </mat-step>
-
-  </mat-stepper>
-</form>
+    </mat-stepper>
+  </form>
