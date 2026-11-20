@@ -22,7 +22,7 @@ import { BookingApi } from '../booking.api';
 import { BookingRequest, Container } from '../booking.models';
 import { Auth } from '../../../core/auth/auth';
 import { ProfileService } from '../../../core/profile/profile.service';
-
+import {MatCheckboxModule} from '@angular/material/checkbox';
 const differentPorts: ValidatorFn = (g) => {
   const o = g.get('originPortId')?.value;
   const d = g.get('destPortId')?.value;
@@ -92,11 +92,12 @@ export class BookingForm {
         destPortId: this.fb.control<number | null>(null, Validators.required),
         shipId: this.fb.control<number | null>(null, Validators.required),
         containerId: this.fb.control<number | null>(null, Validators.required),
-        scheduleAt: this.fb.control('', [Validators.required, notPast]) 
+        scheduleAt: this.fb.control('', [Validators.required, notPast])
       },
       { validators: differentPorts },
     ),
     items: this.fb.array([this.newItem()], [Validators.required, uniqueProducts]),
+    terms: this.fb.control(false, Validators.requiredTrue),
     schedule: this.fb.group({ scheduleDate: this.fb.control('', [Validators.required, notPast]) }),
   });
 
@@ -155,7 +156,7 @@ protected readonly minDateTime = localNow();
       this.form.markAllAsTouched();
       return;
     }
-    
+
 
     const v = this.form.getRawValue();
     const body: BookingRequest = {

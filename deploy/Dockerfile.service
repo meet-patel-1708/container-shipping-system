@@ -3,3 +3,4 @@ WORKDIR /app
 COPY target/*.jar app.jar
 ENV JAVA_OPTS="-Xms128m -Xmx320m"
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
+ENV JAVA_OPTS="-Xms128m -Xmx320m -Duser.timezone=Asia/Kolkata"

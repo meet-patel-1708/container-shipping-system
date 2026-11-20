@@ -12,4 +12,4 @@ import java.util.List;
 public record BookingRequest(
         @NotNull Long containerId, @NotNull Long shipId,
         @NotNull Long originPortId, @NotNull Long destPortId,
-        @NotEmpty @Valid List<BookingItemRequest> items,@NotNull @Future LocalDateTime scheduleAt) {}
+        @NotEmpty @Valid List<BookingItemRequest> items,@NotNull @Future LocalDateTime scheduleAt,@NotNull @AssertTrue(message = "You must accept the terms and conditions") Boolean acceptedTerms) {}

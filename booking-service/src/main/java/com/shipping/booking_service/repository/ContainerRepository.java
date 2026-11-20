@@ -1,6 +1,7 @@
 package com.shipping.booking_service.repository;
 
 import com.shipping.booking_service.entity.Container;
+import com.shipping.booking_service.entity.ContainerType;
 import com.shipping.booking_service.entity.Status;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
@@ -24,4 +25,5 @@ public interface ContainerRepository extends JpaRepository<Container, Long> {
     @Query("SELECT c FROM Container c WHERE c.id = :containerId")
     Optional<Container> findByIdForUpdate(@Param("containerId") Long containerId);
     List<Container> findByAllocatedKgGreaterThan(BigDecimal kg);
+    List<Container> findByStatusAndContainerType(Status status, ContainerType type);
 }

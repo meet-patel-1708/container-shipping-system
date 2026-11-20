@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { StaffApi } from '../staff-api';
 import { FleetLookup } from '../../../features/fleet/fleet-lookup';
-import { Booking, BookingStatus, STATUS_LABEL } from '../../../features/booking/booking.models';
+import { Booking, BookingStatus, STATUS_LABEL,MergeCandidate } from '../../../features/booking/booking.models';
 import { Auth } from '../../auth/auth';
 
 const VOYAGE: BookingStatus[] = ['SHIPPED', 'IN_TRANSIT', 'ARRIVED'];
@@ -20,71 +20,16 @@ interface Group {
   imports: [DatePipe, MatButtonModule, MatIconModule, MatProgressBarModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './staff-movement.scss',
-  template: `
-    <div class="page">
-      <h2>Container movements</h2>
-      <p><small>Click a container to load it. Tick the received goods to ship; goods not ticked are offloaded and refunded.</small></p>
-      @if (loading()) { <mat-progress-bar mode="indeterminate" /> }
-      @if (error(); as m) { <p class="error">{{ m }}</p> }
-      @if (info(); as m) { <p class="ok">{{ m }}</p> }
-
-      @for (g of groups(); track g.containerId) {
-        <div class="box">
-          <div class="head" style="cursor:pointer" (click)="toggle(g.containerId)">
-            <div>
-              <strong>Container #{{ g.containerId }}</strong>
-              <small> · {{ fleet.portName(g.originPortId) }} → {{ fleet.portName(g.destPortId) }}
-                · {{ g.remaining }} kg free of {{ g.capacity }} kg · {{ g.voyage ? label[g.voyage] : 'Loading' }}</small>
-            </div>
-            <mat-icon>{{ open() === g.containerId ? 'expand_less' : 'expand_more' }}</mat-icon>
-          </div>
-
-          @if (open() === g.containerId) {
-            <table>
-              <thead><tr><th></th><th>Booking</th><th>Goods</th><th>Weight</th><th>Departs</th><th>Status</th></tr></thead>
-              <tbody>
-                @for (b of g.bookings; track b.bookingId) {
-                  <tr>
-                    <td>@if (!g.voyage && b.status === 'AT_PORT') {
-                      <input type="checkbox" [checked]="picked().has(b.bookingId)" (change)="pick(b.bookingId)" />
-                    }</td>
-                    <td>#{{ b.bookingId }}</td>
-                    <td>@for (i of b.items; track i.itemId) { {{ i.productName ?? ('Product #' + i.productId) }} × {{ i.quantity }}; }</td>
-                    <td>{{ b.totalWeightKg }} kg</td>
-                    <td>{{ b.scheduleAt | date: 'medium' }}</td>
-                    <td>{{ label[b.status] }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-
-            @if (!g.voyage) {
-              @if (canOrigin(g)) {
-                <p>Selected: {{ chosen(g).length }} booking(s), {{ chosenKg(g) }} kg.
-                  @if (chosen(g).length) { Ships from <strong>{{ dueAt(g) | date: 'medium' }}</strong>. }
-                  @if (offloaded(g) > 0) { <span class="error">{{ offloaded(g) }} other booking(s) will be offloaded.</span> }</p>
-                <button mat-flat-button type="button" [disabled]="busy() === g.containerId || !chosen(g).length || !timeReached(g)"
-                        (click)="ship(g)">Ship selected</button>
-                @if (chosen(g).length && !timeReached(g)) { <small> Not before {{ dueAt(g) | date: 'medium' }}</small> }
-              } @else { <small>Loading is done by {{ fleet.portName(g.originPortId) }} staff.</small> }
-            } @else if (g.voyage === 'SHIPPED') {
-              @if (canOrigin(g)) { <button mat-flat-button type="button" (click)="advance(g, 'IN_TRANSIT')">Start transit (live GPS)</button> }
-            } @else if (g.voyage === 'IN_TRANSIT') {
-              @if (canDest(g)) { <button mat-flat-button type="button" (click)="advance(g, 'ARRIVED')">Mark arrived</button> }
-              @if (canOrigin(g)) { <button mat-stroked-button type="button" (click)="startSim(g)">Restart GPS</button> }
-            } @else { <small>Arrived. Hand over each booking from the Port desk.</small> }
-          }
-        </div>
-      } @empty { @if (!loading()) { <p>No active containers.</p> } }
-      <button mat-button type="button" (click)="load()"><mat-icon>refresh</mat-icon> Refresh</button>
-    </div>`,
+  templateUrl:'./staff-movements.html',
 })
 export class StaffMovements {
   private readonly api = inject(StaffApi);
   private readonly auth = inject(Auth);
   protected readonly fleet = inject(FleetLookup);
   protected readonly label = STATUS_LABEL;
-
+protected readonly mergeFor = signal<number | null>(null);
+protected readonly candidates = signal<MergeCandidate[]>([]);
+protected readonly target = signal<number | null>(null);
   protected readonly all = signal<Booking[]>([]);
   protected readonly loading = signal(true);
   protected readonly busy = signal<number | null>(null);
@@ -178,4 +123,29 @@ export class StaffMovements {
     const e = err as HttpErrorResponse;
     return e.status === 0 ? 'Cannot reach the server.' : e.error?.message ?? 'Something went wrong.';
   }
+protected openMerge(g: Group): void {
+  this.clear();
+  this.mergeFor.set(g.containerId);
+  this.target.set(null);
+  this.candidates.set([]);
+  this.api.mergeCandidates(g.containerId).subscribe({
+    next: (c) => this.candidates.set(c),
+    error: (e) => this.error.set(this.msg(e)),
+  });
+}
+protected setTarget(v: string): void { this.target.set(v ? Number(v) : null); }
+
+protected doMerge(g: Group): void {
+  const t = this.target();
+  if (t == null) return;
+  if (!confirm(`Move all goods from container #${g.containerId} to #${t}? Customers are told. Departure times do not change.`)) return;
+  this.api.merge(g.containerId, t).subscribe({
+    next: (r) => {
+      this.mergeFor.set(null);
+      this.info.set(`${r.bookingsUpdated} booking(s) moved to container #${t}. Customers were notified.`);
+      this.load();
+    },
+    error: (e) => this.error.set(this.msg(e)),
+  });
+}
 }

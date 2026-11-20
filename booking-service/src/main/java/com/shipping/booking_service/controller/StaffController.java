@@ -4,10 +4,12 @@ import com.shipping.booking_service.client.StaffGuard;
 import com.shipping.booking_service.dto.Request.*;
 import com.shipping.booking_service.dto.Response.BookingResponse;
 import com.shipping.booking_service.dto.Response.ContainerLoadResponse;
+import com.shipping.booking_service.dto.Response.MergeCandidate;
 import com.shipping.booking_service.dto.Response.PagedResponse;
 import com.shipping.booking_service.entity.BookingStatus;
 import com.shipping.booking_service.security.UserPrinciple;
 import com.shipping.booking_service.service.BookingService;
+import com.shipping.booking_service.service.ConsolidationService;
 import com.shipping.booking_service.service.MovementService;
 import com.shipping.booking_service.service.PortDeskService;
 import jakarta.validation.Valid;
@@ -30,6 +32,7 @@ public class StaffController {
     private final PortDeskService desk;
     private final BookingService bookings;
     private final StaffGuard guard;
+    private final ConsolidationService consolidation;
 
     @GetMapping("/bookings")
     public PagedResponse<BookingResponse> all(@RequestParam(required = false) BookingStatus status,
@@ -91,5 +94,19 @@ public class StaffController {
         guard.require(auth); guard.requirePort(auth, desk.portFor(id, true));
         desk.deliver(id, b.otp(), p.userId());
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/containers/{id}/merge-candidates")
+    public List<MergeCandidate> mergeCandidates(@PathVariable Long id, Authentication auth) {
+        guard.require(auth);
+        guard.requirePort(auth, consolidation.originPort(id));
+        return consolidation.candidates(id);
+    }
+
+    @PostMapping("/containers/{id}/merge")
+    public MovementResult merge(@PathVariable Long id, @Valid @RequestBody MergeRequest b,
+                                @AuthenticationPrincipal UserPrinciple p, Authentication auth) {
+        guard.require(auth);
+        guard.requirePort(auth, consolidation.originPort(id));
+        return consolidation.merge(id, b, p.userId());
     }
 }

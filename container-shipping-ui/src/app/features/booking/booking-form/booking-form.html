@@ -145,7 +145,7 @@
                 <td>{{ l.qty }}</td>
                 <td>{{ l.price | currency: 'INR' }}</td>
                 <td>{{ l.subtotal | currency: 'INR' }}</td>
-                
+
               </tr>
             }
           </tbody>
@@ -159,6 +159,17 @@
           <ul class="error">@for (m of serverErrors(); track m) { <li>{{ m }}</li> }</ul>
         }
       </div>
+      <details class="terms">
+        <summary>Read the terms and conditions</summary>
+        <ol>
+          <li>I will bring my goods to the origin port on the departure day, packed safely and labelled.</li>
+          <li>The declared weight must be correct. Goods more than 5% different from the declared weight are rejected at the port.</li>
+          <li>Goods that are unpaid, rejected, or not delivered to the port before shipping are removed and the space is released.</li>
+          <li>The company may move my goods to another container of the same type, ship and route to avoid sending a half-empty container. My departure date and time will not change, and I will be informed by email.</li>
+          <li>Goods are handed over at the destination port only with the one-time code sent to me.</li>
+        </ol>
+      </details>
+      <mat-checkbox formControlName="terms">I accept the terms and conditions</mat-checkbox>
       <div class="nav">
         <button mat-button matStepperPrevious type="button">Back</button>
         <button mat-flat-button type="button" (click)="submit()" [disabled]="saving() || form.invalid || blocked()">

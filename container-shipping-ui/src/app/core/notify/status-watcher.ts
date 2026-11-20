@@ -76,6 +76,14 @@ export class StatusWatcher {
       }
     }
     this.save(key, Object.fromEntries(list.map((b) => [b.bookingId, b.status])));
+    const ck = `bookingContainer:${this.uid()}`;
+    const knownC = this.load<Record<string, number>>(ck);
+    for (const b of list) {
+      const was = knownC?.[b.bookingId];
+      if (was && was !== b.containerId)
+        msgs.push(`Booking #${b.bookingId} moved to container #${b.containerId}. Your departure time is unchanged.`);
+    }
+    this.save(ck, Object.fromEntries(list.map((b) => [b.bookingId, b.containerId])));
     this.show(msgs);
   }
 

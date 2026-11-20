@@ -64,4 +64,11 @@ export class StaffApi {
   containerLoad() {
     return this.http.get<ContainerLoad[]>(`${this.root}/api/staff/containers/load`, { context: silent() });
   }
+mergeCandidates(containerId: number) {
+  return this.http.get<MergeCandidate[]>(`${this.root}/api/staff/containers/${containerId}/merge-candidates`, { context: silent() });
+}
+merge(containerId: number, targetContainerId: number) {
+  return this.http.post<MovementResult>(`${this.root}/api/staff/containers/${containerId}/merge`,
+    { targetContainerId, bookingIds: [] }, { context: silent() });
+}
 }

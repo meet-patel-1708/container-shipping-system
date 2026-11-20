@@ -31,6 +31,10 @@ public class BookingMovementConsumer {
             if (t == null) return;
             String msg = t[1].formatted(e.bookingId());
             if (e.note() != null && !e.note().isBlank()) msg += " Reason: " + e.note();
+            if ("CONTAINER_CHANGED".equals(e.newStatus())) {
+                service.createAndSend(e.userId(), e.bookingId(), "Container changed", e.note());
+                return;
+            }
             service.createAndSend(e.userId(), e.bookingId(), t[0], msg);
         } catch (Exception ex) { log.error("FAILED status event {}", payload, ex); }
     }

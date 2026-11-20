@@ -27,8 +27,13 @@ shippingDate: string|number|Date;
   totalWeightKg: number;scheduleAt: string; containerCapacityKg: number; containerRemainingKg: number;
 }
 export interface BookingRequest {
-  containerId: number; shipId: number; originPortId: number; destPortId: number; 
-  items: { productId: number; quantity: number }[];scheduleAt: string;
+  containerId: number; shipId: number; originPortId: number; destPortId: number;
+  items: { productId: number; quantity: number }[];scheduleAt: string;acceptedTerms:boolean;
+
+}
+export interface MergeCandidate {
+  containerId: number; containerType: string; containerSize: number;
+  capacityKg: number; remainingKg: number; openBookings: number;
 }
 export interface Container {
   containerId: number; containerType: ContainerType; containerSize: number;
